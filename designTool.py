@@ -6,7 +6,7 @@ Cap. Eng. Ney Rafael Secco (ney@ita.br)
 Aircraft Design Department
 Aeronautics Institute of Technology
 
-07-2022
+08-2022
 
 The code uses several historical regression from
 aircraft design books to make a quick initial
@@ -56,6 +56,17 @@ def analyze(airplane = None,
 
     ### ADD CODE FROM SECTION 4.3 HERE ###
 
+    # Generate geometry
+    geometry(airplane)
+
+    # Converge MTOW and Takeoff Thrust
+    thrust_matching(W0_guess, T0_guess, airplane)
+
+    # Balance analysis
+    balance(airplane)
+
+    # Landing gear design
+    landing_gear(airplane)
 
     if print_log:
         print('We [kg]', airplane['We']/gravity)
@@ -156,7 +167,6 @@ def geometry(airplane):
     xr_v = xm_v - (zm_v-zr_v)*np.tan(sweep_v) + (cm_v-cr_v)/4
     zt_v = zr_v + b_v
     xt_v = xr_v + (zt_v - zr_v)*np.tan(sweep_v) + (cr_v-ct_v)/4
-
 
     # Update dictionary with new results
     airplane['b_w'] = b_w
@@ -409,10 +419,10 @@ def aerodynamics(airplane, Mach, altitude, CL, W0_guess,
 
     ### VISCOUS DRAG
 
+    # Total wetted area
+    Swet = Swet_w + Swet_h + Swet_v + Swet_f + Swet_n
+
     if method == 1:
-        
-        # Total wetted area
-        Swet = Swet_w + Swet_h + Swet_v + Swet_f + Swet_n
     
         # Wetted area ratio
         Sr = Swet/S_w
@@ -526,7 +536,7 @@ def aerodynamics(airplane, Mach, altitude, CL, W0_guess,
         if highlift_config == 'clean':
             lift_factor = 0.0
         elif highlift_config == 'takeoff':
-            lift_factor = 0.75
+            lift_factor = 0.60
         elif highlift_config == 'landing':
             lift_factor = 1.0
 
@@ -567,7 +577,7 @@ def aerodynamics(airplane, Mach, altitude, CL, W0_guess,
         if highlift_config == 'clean':
             lift_factor = 0.0
         elif highlift_config == 'takeoff':
-            lift_factor = 0.75
+            lift_factor = 0.60
         elif highlift_config == 'landing':
             lift_factor = 1.0
 
@@ -632,7 +642,8 @@ def aerodynamics(airplane, Mach, altitude, CL, W0_guess,
                 'deltaCLmax_flap' : deltaCLmax_flap,
                 'deltaCLmax_slat' : deltaCLmax_slat,
                 'CLmax' : CLmax,
-                'K' : K}
+                'K' : K,
+                'Swet' : Swet}
 
     if method == 2:
         dragDict['CD0_w'] = CD0_w
@@ -670,7 +681,8 @@ def engineTSFC(Mach, altitude, airplane):
     This model uses a simplified thermodynamic model of
     turbofans to estimate maximum thrust and TSFC
     
-    airplane['engine'] = {'model': 'thermo turbojet'}
+    airplane['engine'] = {'model': 'thermo turbojet'
+                          'data': dictionary (check turbojet_model function)}
     
     The user can also leave a 'weight' field in the dictionary
     to replace the weight estimation.
@@ -686,8 +698,43 @@ def engineTSFC(Mach, altitude, airplane):
         BPR = engine['BPR']
         Cbase = engine['Cbase'] # This is sea-level static TSFC
     
-        ### ADD CODE FROM SECTION 3.3 HERE ###
+        # Atmospheric conditions at cruise altitude
+        T,p,rho,mi = atmosphere(altitude)
     
+        # Density ratio
+        sigma = rho/1.225
+    
+        # Base TSFC
+        if Cbase is None: # User did not provide a base TSFC
+            if BPR < 4.0:
+                Cbase = 0.85/3600
+            else:
+                Cbase = 0.70/3600
+        
+        else:
+    
+            # Correct Cbase so that the equation gives the desired static TSFC at sea-level
+            Cbase = Cbase/(1-0.15*BPR**0.65)
+    
+        # Howe Eq 3.12a
+        C = Cbase*(1-0.15*BPR**0.65)*(1+0.28*(1+0.063*BPR**2)*Mach)*sigma**0.08
+
+        # Cruise traction correction for takeoff conditions by Scholz
+        # (https://www.fzt.haw-hamburg.de/pers/Scholz/HOOU/AircraftDesign_5_PreliminarySizing.pdf)
+        kT = (0.0013*BPR-0.0397)*altitude/1000.0 - 0.0248*BPR + 0.7125
+    
+    elif engine['model'].lower() == 'thermo turbojet':
+        
+        C, F = turbojet_model(Mach, altitude, engine['data'])
+        
+        # Check if maximum sea-level thrust was already computed
+        if 'T0_eng' not in engine:
+            
+            _, F0 = turbojet_model(0.0, 0.0, engine['data'])
+            airplane['engine']['T0_eng'] = F0
+            
+        # Compute thrust correction factor
+        kT = F/engine['T0_eng']
 
     return C, kT
 
@@ -719,8 +766,119 @@ def empty_weight(W0_guess, T0_guess, airplane):
     altitude_cruise = airplane['altitude_cruise']
     Mach_cruise = airplane['Mach_cruise']
 
-    ### ADD CODE FROM SECTION 3.4 HERE ###
+    # Select appropriate parameters for weight regression
+    
+    if airplane['type'] == 'transport':
+        
+        # Wing weight (Raymer Eq 15.25)
+        # I increased the AR_w exponent from 0.5 to 0.55 to make it more sensitive.
+        # Otherwise, the optimum would be around AR = 12, which may be too optimistic.
+        Nz = 1.5*2.5 # Ultimate load factor
+        Scsw = 0.15*S_w # Area of control surfaces
+        W_w = 0.0051*(W0_guess*Nz/lb2N)**0.557*(S_w/ft2m**2)**0.649*AR_w**0.55*tcr_w**(-0.4)*(1+taper_w)**0.1/np.cos(sweep_w)*(Scsw/ft2m**2)**0.1*lb2N
+        xcg_w = xm_w + 0.4*cm_w
+        
+        # Surface densities for remaining components (kg/m2) - Raymer Tab 15.2
+        W_h_dens = 27
+        W_v_dens = 27
+        W_f_dens = 24
+        W_lg_fact = 0.043
+        W_eng_fact = 1.3
+        W_allelse_fact = 0.17
+        
+    elif airplane['type'] == 'fighter':
 
+        # Wing weight (Raymer Eq 15.1)
+        Nz = 1.5*6.0 # Ultimate load factor
+        Scsw = 0.15*S_w # Area of control surfaces
+        W_w = 0.0103*(W0_guess*Nz/lb2N)**0.5*(S_w/ft2m**2)**0.622*AR_w**0.785*tcr_w**(-0.4)*(1+taper_w)**0.05/np.cos(sweep_w)*(Scsw/ft2m**2)**0.04*lb2N
+        xcg_w = xm_w + 0.4*cm_w
+        
+        # Surface densities for remaining components (kg/m2) - Raymer Tab 15.2
+        W_h_dens = 20
+        W_v_dens = 26
+        W_f_dens = 23
+        W_lg_fact = 0.033
+        W_eng_fact = 1.3
+        W_allelse_fact = 0.17
+        
+    elif airplane['type'] == 'general':
+
+        # Cruise dynamic pressure
+        T,_,rho,_ = atmosphere(altitude_cruise)
+        a_cruise = np.sqrt(gamma_air*R_air*T)
+        v_cruise = Mach_cruise*a_cruise
+        q_cruise = 0.5*rho*v_cruise**2
+
+        # Wing weight (Raymer Eq 15.46)
+        Nz = 1.5*4.4 # Ultimate load factor
+        W_w = 0.036*(W0_guess*Nz/lb2N)**0.49*(S_w/ft2m**2)**0.758*(AR_w/np.cos(sweep_w)**2)**0.6*(100*tcr_w/np.cos(sweep_w))**(-0.3)*(taper_w)**0.04*q_cruise**0.006*lb2N
+        xcg_w = xm_w + 0.4*cm_w
+        
+        # Surface densities for remaining components (kg/m2) - Raymer Tab 15.2
+        W_h_dens = 10
+        W_v_dens = 10
+        W_f_dens = 7
+        W_lg_fact = 0.057
+        W_eng_fact = 1.4
+        W_allelse_fact = 0.1
+
+    # Use Raymer Tab 15.2 for the remaining components
+
+    W_h = S_h*gravity*W_h_dens
+    xcg_h = xm_h + 0.4*cm_h
+
+    W_v = S_v*gravity*W_v_dens
+    xcg_v = xm_v + 0.4*cm_v
+
+    W_f = Swet_f*gravity*W_f_dens
+    xcg_f = 0.45*L_f
+
+    # Check if LG is active
+    if x_nlg is not None:
+        
+        W_nlg = 0.15*W0_guess*W_lg_fact
+        xcg_nlg = x_nlg
+    
+        W_mlg = 0.85*W0_guess*W_lg_fact
+        xcg_mlg = x_mlg
+        
+    else:
+        
+        W_nlg = 0.0
+        xcg_nlg = 0.0
+    
+        W_mlg = 0.0
+        xcg_mlg = 0.0
+
+    # Engine weight
+    T_eng = T0_guess/n_engines
+    
+    if 'weight' in airplane['engine']:
+        
+        # The user already gave the engine weight
+        W_eng = airplane['engine']['weight']
+    
+    elif 'turbofan' in airplane['engine']['model']:
+        BPR = airplane['engine']['BPR']
+        
+        # Turbofan weight (Raymer Eq. 10.4)
+        W_eng = gravity*14.7*(T_eng/1000.0)**1.1*np.exp(-0.045*BPR)
+
+    W_eng_installed = n_engines*W_eng*W_eng_fact
+    xcg_eng = x_n + 0.5*L_n
+
+    # All else weight
+    W_allelse = W_allelse_fact*W0_guess
+    xcg_allelse = 0.45*L_f
+
+    # Empty weight
+    We = W_w + W_h + W_v + W_f + W_nlg + W_mlg + W_eng_installed + W_allelse
+
+    # Empty weight CG
+    xcg_e = (W_w*xcg_w + W_h*xcg_h + W_v*xcg_v + W_f*xcg_f +
+             W_nlg*xcg_nlg + W_mlg*xcg_mlg + W_eng_installed*xcg_eng +
+             W_allelse*xcg_allelse)/We
 
     # Update dictionary
     airplane['W_w'] = W_w
@@ -748,8 +906,86 @@ def fuel_weight(W0_guess, airplane):
     Mach_altcruise = airplane['Mach_altcruise']
     range_altcruise = airplane['range_altcruise']
 
-    ### ADD CODE FROM SECTION 3.5 HERE ###
+    # Get engine TSFC
+    C_cruise,_ = engineTSFC(Mach_cruise, altitude_cruise, airplane)
+    C_altcruise,_ = engineTSFC(Mach_altcruise, altitude_altcruise, airplane)
 
+    # Initialize product of all phases
+    Mf = 1.0
+
+    ### Start and warm-up
+    Mf = Mf*0.99
+
+    ### Taxi
+    Mf = Mf*0.99
+
+    ### Take-off
+    Mf = Mf*0.995
+
+    ### Climb
+    Mf = Mf*0.98
+
+    ### Cruise
+
+    # Store weight fraction at beginning of the cruise
+    Mf_cruise = Mf
+
+    # Atmospheric conditions at cruise altitude
+    T,p,rho,mi = atmosphere(altitude_cruise)
+
+    # Cruise speed
+    a_cruise = np.sqrt(gamma_air*R_air*T)
+    v_cruise = Mach_cruise*a_cruise
+
+    # Cruise CL
+    CL = 2.0*W0_guess*Mf/rho/S_w/v_cruise**2
+
+    # Cruise C
+    CD, CLmax, dragDict = aerodynamics(airplane, Mach_cruise, altitude_cruise,
+                                       CL, W0_guess, n_engines_failed=0, highlift_config='clean',
+                                       lg_down=0, h_ground=0)
+
+    Mf = Mf*np.exp(-range_cruise*C_cruise/v_cruise*CD/CL)
+
+    ### Loiter
+
+    # Loiter at max L/D #ESCREVER
+    # For now, we take the cruise CD0 and K (which do not take
+    # wave drag into account) to estimate L/Dmax
+    LDmax = 0.5/np.sqrt(dragDict['CD0']*dragDict['K'])
+
+    # Factor to fuel comsumption (Correction based on Raymer Tab. 3.3)
+    C_loiter = C_cruise - 0.1/3600.0
+
+    Mf = Mf*np.exp(-loiter_time*C_loiter/LDmax)
+
+    ### Descent
+    Mf = Mf*0.99
+
+    ### Cruise 2
+
+    # Atmospheric conditions at cruise altitude
+    T,p,rho,mi = atmosphere(altitude_altcruise)
+
+    # Cruise speed
+    a_altcruise = np.sqrt(gamma_air*R_air*T)
+    v_altcruise = Mach_altcruise*a_altcruise
+
+    # Cruise CL
+    CL = 2.0*W0_guess*Mf/rho/S_w/v_altcruise**2
+
+    # Cruise CD
+    CD, CLmax, dragDict = aerodynamics(airplane, Mach_altcruise, altitude_altcruise,
+                                       CL, W0_guess, n_engines_failed=0, highlift_config='clean',
+                                       lg_down=0, h_ground=0)
+
+    Mf = Mf*np.exp(-range_altcruise*C_altcruise/v_altcruise*CD/CL)
+
+    ### Landing and Taxi
+    Mf = Mf*0.992
+
+    ### Fuel weight (Raymer Eq 3.13)
+    Wf = 1.06*(1-Mf)*W0_guess
 
     return Wf, Mf_cruise
 
@@ -764,10 +1000,20 @@ def weight(W0_guess, T0_guess, airplane):
     # Set iterator
     delta = 1000
 
-    #while abs(delta) > 10:
+    while abs(delta) > 10:
 
-        ### ADD CODE FROM SECTION 3.6.4 HERE ###
+        # We need to call fuel_weight first since it
+        # calls the aerodynamics module to get Swet_f used by
+        # the empty weight function
+        Wf, Mf_cruise = fuel_weight(W0_guess, airplane)
 
+        We, xcg_e = empty_weight(W0_guess, T0_guess, airplane)
+
+        W0 = We + Wf + W_payload + W_crew
+
+        delta = W0 - W0_guess
+
+        W0_guess = W0
 
     return W0, We, Wf, Mf_cruise, xcg_e
 
@@ -796,9 +1042,76 @@ def performance(W0, Mf_cruise, airplane):
     MLW_frac = airplane['MLW_frac']
     altitude_cruise = airplane['altitude_cruise']
     Mach_cruise = airplane['Mach_cruise']
-    
-    ### ADD CODE FROM SECTION 3.7.3 TO SECTION 3.7.5 HERE ###
 
+    ### TAKEOFF
+
+    # Compute air density at takeoff altitude
+    T,p,rho,mi = atmosphere(altitude_takeoff)
+
+    # density ratio
+    sigma = rho/1.225
+
+    # Takeoff aerodynamics
+    _, CLmaxTO, _ = aerodynamics(airplane, Mach=0.2, altitude=altitude_takeoff,
+                                 CL=0.5, W0_guess=W0, n_engines_failed=0, highlift_config='takeoff',
+                                 lg_down=0, h_ground=h_ground)
+
+    T0W0 = 0.2387/sigma/CLmaxTO/distance_takeoff*W0/S_w
+
+    T0_to = T0W0*W0
+
+    ### LANDING
+
+    # Compute air density at landing altitude
+    T,p,rho,mi = atmosphere(altitude_landing)
+
+    # Landing aerodynamics
+    _, CLmaxLD, _ = aerodynamics(airplane, Mach=0.2, altitude=altitude_landing,
+                                 CL=0.5, W0_guess=W0, n_engines_failed=0, highlift_config='landing',
+                                 lg_down=0, h_ground=h_ground)
+
+    # Landing Field Length (Roskam)
+    # We removed this since it was favoring the landing (SFL)
+    # distance_landing = distance_landing/0.6
+
+    # Approach speed (Roskam adapted to SI)
+    Va = 1.701*np.sqrt(distance_landing)
+
+    # Required stall speed
+    Vs = Va/1.3
+
+    # Required wing area
+    S_wlan = 2*W0*MLW_frac/rho/Vs**2/CLmaxLD
+
+    # Compute wing area excess with respect to the landing requirement.
+    # The aircraft should have deltaS_wlan >= 0 to satisfy landing.
+    deltaS_wlan = S_w - S_wlan
+
+    ### CRUISE
+
+    # Compute air density at cruise altitude
+    T,p,rho,mi = atmosphere(altitude_cruise)
+
+    # Cruise speed
+    a_cruise = np.sqrt(gamma_air*R_air*T)
+    v_cruise = Mach_cruise*a_cruise
+
+    # Cruise CL
+    CL = 2.0*W0*Mf_cruise/rho/S_w/v_cruise**2
+
+    # Cruise CD # ESCREVER
+    CD, _, _ = aerodynamics(airplane, Mach=Mach_cruise, altitude=altitude_cruise,
+                            CL=CL, W0_guess=W0, n_engines_failed=0, highlift_config='clean',
+                            lg_down=0, h_ground=0)
+
+    # Cruise traction
+    T = 0.5*rho*v_cruise**2*S_w*CD
+
+    # Cruise correction factor
+    _, kT = engineTSFC(Mach_cruise, altitude_cruise, airplane)
+
+    # Corrected thrust
+    T0_cruise = T/kT
 
     ### CLIMB
 
@@ -814,14 +1127,194 @@ def performance(W0, Mf_cruise, airplane):
         kT: Thrust decay factor (e.g. use 0.94 for maximum continuous thrust)
         '''
 
-        ### ADD CODE FROM SECTION 3.7.6 HERE ###
+        # Compute air density
+        T,p,rho,mi = atmosphere(altitude)
 
+        # Compute stall speed
+        Vs = np.sqrt(2*W0*Mf/rho/S_w/CLmax_guess)
+
+        # Compute climb speed
+        Vclimb = Vs*Ks
+
+        # Compute sound speed and Mach number
+        a = np.sqrt(gamma_air*R_air*T)
+        Mach = Vclimb/a
+
+        # Dummy run to get CLmax # ESCREVER
+        _, CLmax, _ = aerodynamics(airplane, Mach=Mach, altitude=altitude,
+                                   CL=0.5, W0_guess=W0, n_engines_failed=n_engines_failed, highlift_config=highlift_config,
+                                   lg_down=lg_down, h_ground=h_ground_climb)
+
+        # Get climb CL
+        CL = CLmax/Ks**2
+
+        # Get corresponding CD # ESCREVER
+        CD, _, _ = aerodynamics(airplane, Mach=Mach, altitude=altitude,
+                                CL=CL, W0_guess=W0, n_engines_failed=n_engines_failed, highlift_config=highlift_config,
+                                lg_down=lg_down, h_ground=h_ground_climb)
+
+        # Check number of failed engines
+        if n_engines_failed >= n_engines:
+            print('Warning: number of engines failed is equal or greater than the number of engines')
+            print('We will force n_engines_failed = n_engines-1')
+            n_engines_failed = n_engines - 1
+
+        # Compute T/W
+        TW = n_engines/(n_engines-n_engines_failed)*(grad + CD/CL)
+
+        # Compute required traction
+        T0 = TW*W0*Mf/kT
 
         return T0
 
-    ### CONTINUE THE CODE FROM SECTION 3.7.6 HERE ###
+    # FAR 25.111
+    grad = 0.012
+    Ks = 1.2
+    altitude = altitude_takeoff
+    CLmax_guess = CLmaxTO
+    lg_down = 0
+    h_ground_climb = h_ground
+    highlift_config = 'takeoff'
+    n_engines_failed = 1
+    Mf = 1.0
+    kT = 1.0
+    T0_1 = climb_analysis(grad, Ks, altitude, CLmax_guess,
+                          lg_down, h_ground_climb, highlift_config, n_engines_failed, Mf,
+                          kT)
 
-    ### ADD CODE FROM SECTION 3.7.7 HERE ###
+    # FAR 25.121a
+    grad = 0.0
+    Ks = 1.1
+    altitude = altitude_takeoff
+    CLmax_guess = CLmaxTO
+    lg_down = 1
+    h_ground_climb = h_ground
+    highlift_config = 'takeoff'
+    n_engines_failed = 1
+    Mf = 1.0
+    kT = 1.0
+    T0_2 = climb_analysis(grad, Ks, altitude, CLmax_guess,
+                          lg_down, h_ground_climb, highlift_config, n_engines_failed, Mf,
+                          kT)
+
+    # FAR 25.121b
+    grad = 0.024
+    Ks = 1.2
+    altitude = altitude_takeoff
+    CLmax_guess = CLmaxTO
+    lg_down = 0
+    h_ground_climb = 0
+    highlift_config  = 'takeoff'
+    n_engines_failed = 1
+    Mf = 1.0
+    kT = 1.0
+    T0_3 = climb_analysis(grad, Ks, altitude, CLmax_guess,
+                          lg_down, h_ground_climb, highlift_config, n_engines_failed, Mf,
+                          kT)
+
+    # FAR 25.121c
+    grad = 0.012
+    Ks = 1.25
+    altitude = altitude_takeoff
+    CLmax_guess = CLmaxTO
+    lg_down = 0
+    h_ground_climb = 0
+    highlift_config = 'clean'
+    n_engines_failed = 1
+    Mf = 1.0
+    kT = 0.94
+    T0_4 = climb_analysis(grad, Ks, altitude, CLmax_guess,
+                          lg_down, h_ground_climb, highlift_config, n_engines_failed, Mf,
+                          kT)
+
+    # FAR 25.119
+    grad = 0.032
+    Ks = 1.30
+    altitude = altitude_landing
+    CLmax_guess = CLmaxLD
+    lg_down = 1
+    h_ground_climb = 0
+    highlift_config = 'landing'
+    n_engines_failed = 0
+    Mf = MLW_frac
+    kT = 1.0
+    T0_5 = climb_analysis(grad, Ks, altitude, CLmax_guess,
+                          lg_down, h_ground_climb, highlift_config, n_engines_failed, Mf,
+                          kT)
+
+    # FAR 25.121d
+    grad = 0.021
+    Ks = 1.40
+    altitude = altitude_landing
+    CLmax_guess = CLmaxLD
+    lg_down = 1
+    h_ground_climb = 0
+    highlift_config = 'takeoff' # Assumed approach == landing
+    n_engines_failed = 1
+    Mf = MLW_frac
+    kT = 1.0
+    T0_6 = climb_analysis(grad, Ks, altitude, CLmax_guess,
+                          lg_down, h_ground_climb, highlift_config, n_engines_failed, Mf,
+                          kT)
+
+    # RATO TAKEOFF
+
+    if 'altitude_rato_takeoff' in airplane.keys():
+        '''
+        RATO takeoff formulation from
+        SILVA, Daniel Marques. Modelo de Desempenho para Avaliar o Perfil de Missão de Um
+        AAM Aplicável ao Projeto Conceitual da Aeronave. 2021. Trabalho de Conclusão
+        de Curso (Graduação) { Instituto Tecnológico de Aeronáutica, São José dos Campos.
+
+        This will be assigned as a wing loading requirement that could replace
+        the landing requirement if it is more critical
+        '''
+
+        # Unpack optional arguments
+        altitude_rato = airplane['altitude_rato_takeoff']
+        ramp_angle_rato = airplane['ramp_angle_rato_takeoff']
+        c_rato = airplane['c_rato_takeoff']
+        prop_mass_ratio_rato = airplane['prop_mass_ratio_rato_takeoff']
+        t_burn_rato = airplane['t_burn_rato_takeoff']
+        Ks = airplane['Ks_rato_takeoff']
+
+        # Compute air density at takeoff altitude
+        T,p,rho,mi = atmosphere(altitude_rato)
+    
+        # density ratio
+        sigma = rho/1.225
+    
+        # Takeoff aerodynamics
+        _, CLmaxTO, _ = aerodynamics(airplane, Mach=0.2, altitude=altitude_rato,
+                                     CL=0.5, W0_guess=W0, n_engines_failed=0, highlift_config='takeoff',
+                                     lg_down=0, h_ground=0)
+    
+        # Compute required wing loading to reach desired stall speed
+        # factor at the end of the burn
+        WS_req = 0.5*rho*CLmaxTO/Ks*(c_rato*np.log(1-prop_mass_ratio_rato) + gravity*t_burn_rato*np.sin(ramp_angle_rato))**2
+    
+        deltaS_rato = S_w - W0/WS_req
+        deltaS_wlan = min(deltaS_wlan, deltaS_rato)
+
+        # Check climb gradient at the end of the burn
+        # This will replace last climb requirement
+        grad = np.tan(ramp_angle_rato)
+        Ks = Ks
+        altitude = altitude_rato
+        CLmax_guess = CLmaxTO
+        lg_down = 1
+        h_ground_climb = 0
+        highlift_config = 'takeoff'
+        n_engines_failed = 0
+        Mf = 1.0
+        kT = 1.0
+        T0_6 = climb_analysis(grad, Ks, altitude, CLmax_guess,
+                              lg_down, h_ground_climb, highlift_config, n_engines_failed, Mf,
+                              kT)
+
+    # Get the maximum required thrust with a 5% margin
+    T0vec = [T0_to, T0_cruise, T0_1, T0_2, T0_3, T0_4, T0_5, T0_6]
+    T0 = 1.05*max(T0vec)
 
     return T0, T0vec, deltaS_wlan, CLmaxTO
 
@@ -829,7 +1322,22 @@ def performance(W0, Mf_cruise, airplane):
 
 def thrust_matching(W0_guess, T0_guess, airplane):
 
-    ### ADD CODE FROM SECTION 3.8 HERE ###
+    # Set iterator
+    delta = 1000
+
+    # Loop to adjust T0
+    while abs(delta) > 10:
+
+        W0, We, Wf, Mf_cruise, xcg_e = weight(W0_guess, T0_guess, airplane)
+
+        T0, T0vec, deltaS_wlan, CLmaxTO = performance(W0, Mf_cruise, airplane)
+
+        # Compute change with respect to previous iteration
+        delta = T0 - T0_guess
+
+        # Update guesses for the next iteration
+        T0_guess = T0
+        W0_guess = W0
 
     # Update dictionary
     airplane['W0'] = W0
@@ -888,8 +1396,101 @@ def balance(airplane):
     n_engines = airplane['n_engines']
     CLmaxTO = airplane['CLmaxTO']
     rho_f = airplane['rho_f']
-    
-    ### ADD CODE FROM SECTION 3.9 HERE ###
+
+    ### TANK CG
+    '''
+    We will compute the centroid of a trapezoidal tank.
+    The expressions below where derived with the obelisk volume
+    and centroid, assuming that both root and tip sections
+    have the same c_tank_c_w and t/c
+    '''
+
+    # Required fuel volume
+    Vf = Wf/rho_f/gravity
+
+    # Average wing thickness
+    tc_w = 0.5*(tcr_w + tct_w)
+
+    # Find the span fraction that should be occupied by the fuel tank
+    b_tank_b_w = 3.0*Vf/c_tank_c_w/tc_w/(cr_w**2 + ct_w**2 + cr_w*ct_w)/b_w
+
+    # Find the lateral distance of the fuel tank centroid to the symmetry plane
+    ycg_f = b_tank_b_w*b_w/8*(cr_w**2 + 2*cr_w*ct_w + 3*ct_w**2)/(cr_w**2 + cr_w*ct_w + ct_w**2)
+
+    # Sweep at the tank center line
+    sweep_tank = geo_change_sweep(0.25, x_tank_c_w + 0.5*c_tank_c_w,
+                                  sweep_w, b_w/2, cr_w, ct_w)
+
+    # Longitudinal position of the tank CG
+    xcg_f = xr_w + cr_w*(x_tank_c_w + 0.5*c_tank_c_w) + ycg_f*np.tan(sweep_tank)
+
+    ### CG RANGE
+
+    # Empty airplane
+    xcg_1 = xcg_e
+
+    # Crew
+    xcg_2 = (We*xcg_e + W_crew*xcg_crew)/(We + W_crew)
+
+    # Payload and crew
+    xcg_3 = (We*xcg_e + W_payload*xcg_payload + W_crew*xcg_crew)/(We + W_payload + W_crew)
+
+    # Fuel and crew
+    xcg_4 = (We*xcg_e + Wf*xcg_f + W_crew*xcg_crew)/(We + Wf + W_crew)
+
+    # Payload, crew, and fuel (full airplane)
+    xcg_5 = (We*xcg_e + Wf*xcg_f + W_payload*xcg_payload + W_crew*xcg_crew)/W0
+
+    # Find CG range
+    xcg_list = [xcg_1, xcg_2, xcg_3, xcg_4, xcg_5]
+    xcg_fwd = min(xcg_list)
+    xcg_aft = max(xcg_list)
+
+    # We do not need to consider the static margin for the empty case
+    # So we compute the flight CG range
+    xcg_list = [xcg_2, xcg_3, xcg_4, xcg_5]
+    xcg_fwd_flight = min(xcg_list)
+    xcg_aft_flight = max(xcg_list)
+
+    ### NEUTRAL POINT
+
+    # Wing lift slope (Raymer Eq 12.6)
+    sweep_maxt_w = geo_change_sweep(0.25, 0.40,
+                                    sweep_w, b_w/2, cr_w, ct_w) # Sweep at max. thickness
+    beta2 = 1-Mach_cruise**2
+    CLa_w = 2*np.pi*AR_w/(2 + np.sqrt(4 + AR_w**2*beta2/0.95**2*(1+np.tan(sweep_maxt_w)**2/beta2)))*0.98
+
+    # Wing aerodynamic center at 25% mac
+    xac_w = xm_w + 0.25*cm_w
+
+    # HT lift slope (Raymer Eq 12.6)
+    sweep_maxt_h = geo_change_sweep(0.25, 0.40,
+                                    sweep_h, b_h/2, cr_h, ct_h) # Sweep at max. thickness
+    CLa_h = 2*np.pi*AR_h/(2 + np.sqrt(4 + AR_h**2*beta2/0.95**2*(1+np.tan(sweep_maxt_h)**2/beta2)))*0.98
+
+    # HT aerodynamic center at 25% mac
+    xac_h = xm_h + 0.25*cm_h
+
+    # Downwash (Nelson Eq 2.23)
+    deda = 2*CLa_w/np.pi/AR_w
+
+    # Fuselage moment slope (Raymer Eq 16.25)
+    CMa_f = 0.03*180/np.pi*D_f**2*L_f/cm_w/S_w
+
+    # Neutral point position (Raymer Eq 16.9 and Eq 16.23)
+    xnp = (CLa_w*xac_w - CMa_f*cm_w + eta_h*S_h/S_w*CLa_h*(1-deda)*xac_h)/(CLa_w + eta_h*S_h/S_w*CLa_h*(1-deda))
+
+    # Static margin
+    SM_fwd = (xnp - xcg_fwd_flight)/cm_w
+    SM_aft = (xnp - xcg_aft_flight)/cm_w
+
+    # VERTICAL TAIL VERIFICATION FOR OEI CONDITION
+
+    # Compute stall factor assuming that V2 = 1.1*Vmc and V2=1.2*Vs (FAR 25.107)
+    Ks = 1.2/1.1
+
+    # Compute required lift for the vertical tail
+    CLv = y_n/b_w*CLmaxTO/Ks**2*T0/W0/n_engines/Cvt
 
     # Update dictionary
     airplane['xcg_fwd'] = xcg_fwd
@@ -916,7 +1517,31 @@ def landing_gear(airplane):
     x_tailstrike = airplane['x_tailstrike']
     z_tailstrike = airplane['z_tailstrike']
 
-    ### ADD CODE FROM SECTION 3.10 HERE ###
+    # Check if there is a landing gear
+    if x_nlg is not None:
+
+        # Weight fractions on NLG for both load cases
+        frac_nlg_fwd = (x_mlg-xcg_fwd)/(x_mlg-x_nlg)
+        frac_nlg_aft = (x_mlg-xcg_aft)/(x_mlg-x_nlg)
+    
+        # Tipback angle (for now assume that CG is along fuselage axis)
+        alpha_tipback = np.arctan((x_mlg - xcg_aft)/(-z_lg))
+    
+        # Tailstrike angle
+        alpha_tailstrike = np.arctan((z_tailstrike - z_lg)/(x_tailstrike - x_mlg))
+    
+        # Overturn angle
+        sgl = (xcg_fwd - x_nlg)*y_mlg/np.sqrt((x_mlg - x_nlg)**2 + y_mlg**2)
+        phi_overturn = np.arctan(-z_lg/sgl)
+        
+    else:
+        
+        # Add dummy data
+        frac_nlg_fwd = None
+        frac_nlg_aft = None
+        alpha_tipback = None
+        alpha_tailstrike = None
+        phi_overturn = None
 
     # Update dictionary
     airplane['frac_nlg_fwd'] = frac_nlg_fwd
@@ -1158,8 +1783,8 @@ def plot3d(airplane, figname='3dview.png', az1=45, az2=-135):
     ail_tip_margin = 0.02 # Margem entre flap e aileron em % de b_w
 
     # Spanwise positions (root and tip)
-    yr_a = (b_flap_b_wing + ail_tip_margin)*b_w/2
-    yt_a = (b_flap_b_wing + ail_tip_margin + b_ail_b_wing)*b_w/2
+    yr_a = (1.0 - (ail_tip_margin + b_ail_b_wing))*b_w/2
+    yt_a = (1.0 - (ail_tip_margin))*b_w/2
 
     cr_a = lin_interp(0, b_w/2, cr_w, ct_w, yr_a)*c_ail_c_wing
     ct_a = lin_interp(0, b_w/2, cr_w, ct_w, yt_a)*c_ail_c_wing
@@ -1450,10 +2075,6 @@ def plot3d(airplane, figname='3dview.png', az1=45, az2=-135):
              lw=1,color='green')
     #------------------------------
 
-
-
-
-
     # Avoiding blanketing the rudder
     ax.plot([xr_h         , xr_h+b_v/np.tan(60*np.pi/180)],
             [0.0          , 0.0 ],
@@ -1463,9 +2084,6 @@ def plot3d(airplane, figname='3dview.png', az1=45, az2=-135):
     ax.plot([xr_h+cr_h         , xr_h+0.6*b_v/np.tan(30*np.pi/180)+cr_h],
             [0.0          , 0.0 ],
             [zr_h, zr_h+0.6*b_v],'k--')
-
-
-
 
     # Water Spray
     if x_nlg is not None:
@@ -1478,7 +2096,6 @@ def plot3d(airplane, figname='3dview.png', az1=45, az2=-135):
         ax.plot([x_nlg         , x_nlg+10/np.tan(22*np.pi/180)],
                 [0.0          , -4.8 ],
                 [0.0, 0.0],'k--')
-
 
 
     # Create cubic bounding box to simulate equal aspect ratio
@@ -1670,6 +2287,116 @@ def lin_interp(x0, x1, y0, y1, x):
     return y
 
 #----------------------------------------
+
+def turbojet_model(Mach, altitude, data):
+    
+    '''
+    Model implemented by Marcelo Yuri Sampaio de Freitas
+    during his undergraduate thesis:
+    "Projeto conceitual de alvo aéreo manobrável baseado na propulsão de turbojato"
+    Instituto Tecnológico de Aeronáutica, 2020.
+    http://www.bdita.bibl.ita.br/TGsDigitais/lista_resumo.php?num_tg=77532
+    
+    This function returns the TSFC and maximum thrust of the engine
+
+    data should be a dictionary with the following fields:
+    data['p02_p01']: compression ratio
+    data['T03']: turbine inlet temperature
+    data['n_comp']: compressor efficiency
+    data['n_turbine']: turbine efficiency
+    data['n_intake']: intake efficiency
+    data['n_isen_noz']: insentropic nozzle efficiency
+    data['n_mec']: mechanical efficiency
+    data['n_comb']: combustion efficiency
+    data['delta_pb']: pressure loss at the combustion chamber
+    data['A5']: nozzle area
+    '''
+        
+    # Thermodynamic parameters
+    Cp_air = 1005 # J/kg*K
+    gamma_comb = 1.333
+    Cp_comb = 1148 # J/kg*K
+    LHV = 43.1e6 #J/kg fuel calorific power
+        
+    # Air properties
+    [Ta,pa,rho,mi] = atmosphere(altitude, 288.15)
+    sound_speed = np.sqrt(gamma_air*R_air*Ta)
+        
+    # Generic engine parameters
+    p02_p01 = data['p02_p01']
+    T03 = data['T03']
+    n_comp = data['n_comp']
+    n_turbine = data['n_turbine']
+    n_intake = data['n_intake']
+    n_isen_noz = data['n_isen_noz']
+    n_mec = data['n_mec']
+    n_comb = data['n_comb']
+    delta_pb = data['delta_pb'] # Pressure loss in combustion chamber
+
+    #O requisito pode ser alterado para fluxo de massa
+    A5 = data['A5']
+    #m_dot = 7.823
+        
+    # Intake
+    T_estag = ((Mach*sound_speed)**2)/(2*Cp_air)
+    T01 = Ta + T_estag
+    p01_pa = (1 + n_intake*T_estag/Ta)**(gamma_air/(gamma_air-1))
+    p01 = p01_pa*pa
+        
+    # Compressor
+    p02 = p02_p01*p01
+    T02 = T01 + (T01/n_comp)*(p02_p01**((gamma_air-1)/gamma_air) - 1)
+        
+    # Combustion
+    p03 = p02*(1-(delta_pb/100))
+    T03 = T03
+        
+    # Turbine
+    deltaT = Cp_air*(T02 - T01)/Cp_comb/n_mec
+    T04 = T03 - deltaT
+    T04_isen = T03 - deltaT/n_turbine
+    p04 = p03*(T04_isen/T03)**(gamma_comb/(gamma_comb-1))
+    
+    # Exhaust nozzle
+    p04_pa = p04/pa
+    p04_pc = 1/((1 - (1/n_isen_noz)*((gamma_comb - 1)/(gamma_comb + 1)))**(gamma_comb/(gamma_comb - 1)))
+        
+    if p04_pa >= p04_pc:
+            
+        # Choked exhaust
+        T05 = (2/(gamma_comb + 1))*T04
+        p05 = p04/p04_pc
+        rho5 = p05/(R_air*T05)
+        C5 = np.sqrt(gamma_comb*R_air*T05)
+        A5s = 1/(rho5*C5)
+        Fs = (C5 - Mach*sound_speed) + A5s*(p05 - pa)
+        m_dot = A5/A5s
+        F = Fs*m_dot # Thrust
+        f_comb = (Cp_comb*T03 - Cp_air*T02)/(LHV*n_comb - Cp_comb*T03)
+        m_dot_fuel = f_comb*m_dot
+        SFC = m_dot_fuel/F #kg/s.N
+            
+    else:
+            
+        # Exhaust is not choked
+        T05 = T04 - n_isen_noz*T04*(1 - (1/p04_pa)**((gamma_comb-1)/gamma_comb))
+        C5 = np.sqrt(2*Cp_comb*(T04 - T05))
+        p05 = pa
+        rho5 = p05/(R_air*T05)
+        A5s = 1/(rho5*C5)
+        Fs = (C5 - Mach*sound_speed) + A5s*(p05 - pa)
+        m_dot = A5/A5s
+        F = Fs*m_dot # Thrust
+        f_comb = (Cp_comb*T03 - Cp_air*T02)/(LHV*n_comb - Cp_comb*T03)
+        m_dot_fuel = f_comb*m_dot
+        SFC = m_dot_fuel/F #kg/s.N
+        #sigma = rho/1.225
+        
+    # Convert to 1/s
+    C = SFC*9.81
+        
+    return C, F
+
 #----------------------------------------
 
 def standard_airplane(name='fokker100'):
@@ -1748,8 +2475,8 @@ def standard_airplane(name='fokker100'):
                     'c_slat_c_wing' : 0.00, # Fraction of the wing chord occupied by slats
                     'b_slat_b_wing' : 0.00, # Fraction of the wing span occupied by slats
 
-                    'c_ail_c_wing' : 0.27, # Fraction of the wing aileron occupied by slats
-                    'b_ail_b_wing' : 0.34, # Fraction of the wing aileron occupied by slats
+                    'c_ail_c_wing' : 0.27, # Fraction of the wing chord occupied by aileron
+                    'b_ail_b_wing' : 0.34, # Fraction of the wing span occupied by aileron
                     
                     'h_ground' : 35.0*ft2m, # Distance to the ground for ground effect computation [m]
                     'k_exc_drag' : 0.03, # Excrescence drag factor
@@ -1853,8 +2580,8 @@ def standard_airplane(name='fokker100'):
                     'c_slat_c_wing' : 0.10, # Fraction of the wing chord occupied by slats
                     'b_slat_b_wing' : 0.75, # Fraction of the wing span occupied by slats
 
-                    'c_ail_c_wing' : 0.27, # Fraction of the wing aileron occupied by slats
-                    'b_ail_b_wing' : 0.34, # Fraction of the wing aileron occupied by slats
+                    'c_ail_c_wing' : 0.27, # Fraction of the wing chord occupied by ailerons
+                    'b_ail_b_wing' : 0.34, # Fraction of the wing span occupied by ailerons
                     
                     'h_ground' : 35.0*ft2m, # Distance to the ground for ground effect computation [m]
                     'k_exc_drag' : 0.03, # Excrescence drag factor
@@ -1889,4 +2616,3 @@ def standard_airplane(name='fokker100'):
     
 
     return airplane
-
