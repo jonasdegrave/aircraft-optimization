@@ -3151,5 +3151,91 @@ def standard_airplane(name="fokker100"):
             "rho_f": 804,  # Fuel density kg/m3 (This is Jet A-1)
             #'W0_guess' : 24100*gravity # Guess for MTOW
         }
+        
+    elif name == "AviaoDoXerife":
+        
+        airplane = {
+            "type": "transport",  # Can be 'transport', 'fighter', or 'general'
+            "S_w": 78.94,  # Wing area [m2]
+            "AR_w": 8.2,  # Wing aspect ratio
+            "taper_w": 0.272,  # Wing taper ratio
+            "sweep_w": 0.380133,  # Wing sweep [rad]
+            "dihedral_w": 0.060272,  # Wing dihedral [rad]
+            "xr_w": 13.5,  # Longitudinal position of the wing (with respect to the fuselage nose) [m]
+            "zr_w": -1.5,  # Vertical position of the wing (with respect to the fuselage nose) [m]
+            "tcr_w": 0.123,  # t/c of the root section of the wing
+            "tct_w": 0.096,  # t/c of the tip section of the wing
+            "Cht": 1.017,  # Horizontal tail volume coefficient
+            "Lc_h": 1.017,  # Non-dimensional lever of the horizontal tail (lever/wing_mac)
+            "AR_h": 4.517,  # HT aspect ratio
+            "taper_h": 0.445,  # HT taper ratio
+            "sweep_h": 0.477871,  # HT sweep [rad]
+            "dihedral_h": 0.043517,  # HT dihedral [rad]
+            "zr_h": 4.359,  # Vertical position of the HT [m]
+            "tcr_h": 0.1,  # t/c of the root section of the HT
+            "tct_h": 0.1,  # t/c of the tip section of the HT
+            "eta_h": 1.0,  # Dynamic pressure factor of the HT
+            "Cvt": 0.077,  # Vertical tail volume coefficient
+            "Lb_v":0.45,  # Non-dimensional lever of the vertical tail (lever/wing_span)
+            "AR_v": 1.474,  # VT aspect ratio
+            "taper_v": 1.474,  # VT taper ratio
+            "sweep_v": 0.654266,  # VT sweep [rad]
+            "zr_v": 0.0,  # Vertical position of the VT [m]
+            "tcr_v": 0.1,  # t/c of the root section of the VT
+            "tct_v": 0.1,  # t/c of the tip section of the VT
+            "L_f": 25.45,  # Fuselage length [m]
+            "D_f": 3.13,  # Fuselage diameter [m]
+            "x_n": 23.2,  # Longitudinal position of the nacelle frontal face [m]
+            "y_n": 2.6,  # Lateral position of the nacelle centerline [m]
+            "z_n": 0.0,  # Vertical position of the nacelle centerline [m]
+            "L_n": 1.70,  # Nacelle length [m]
+            "D_n": 1.6,  # Nacelle diameter [m]
+            "n_engines": 2,  # Number of engines
+            "n_engines_under_wing": 0,  # Number of engines installed under the wing
+            "engine": {
+                "model": "Howe turbofan",  # Check engineTSFC function for options
+                "BPR": 3.04,  # Engine bypass ratio
+                "Cbase": 0.57 / 3600,
+            },
+            "x_nlg": 3.6,  # Longitudinal position of the nose landing gear [m]
+            "x_mlg": 17.8,  # Longitudinal position of the main landing gear [m]
+            "y_mlg": 2.47,  # Lateral position of the main landing gear [m]
+            "z_lg": -2.0,  # Vertical position of the landing gear [m]
+            "x_tailstrike": 23.68,  # Longitudinal position of critical tailstrike point [m]
+            "z_tailstrike": -0.84,  # Vertical position of critical tailstrike point [m]
+            "c_tank_c_w": 0.4,  # Fraction of the wing chord occupied by the fuel tank
+            "x_tank_c_w": 0.2,  # Fraction of the wing chord where fuel tank starts
+            "clmax_w": 1.5,  # Maximum lift coefficient of wing airfoil
+            "flap_type": "double slotted",  # Flap type
+            "c_flap_c_wing": 0.30,  # Fraction of the wing chord occupied by flaps
+            "b_flap_b_wing": 0.60,  # Fraction of the wing span occupied by flaps (including fuselage portion)
+            "slat_type": None,  # Slat type
+            "c_slat_c_wing": 0.00,  # Fraction of the wing chord occupied by slats
+            "b_slat_b_wing": 0.00,  # Fraction of the wing span occupied by slats
+            "c_ail_c_wing": 0.27,  # Fraction of the wing chord occupied by aileron
+            "b_ail_b_wing": 0.34,  # Fraction of the wing span occupied by aileron
+            "h_ground": 35.0
+            * ft2m,  # Distance to the ground for ground effect computation [m]
+            "k_exc_drag": 0.03,  # Excrescence drag factor
+            "altitude_takeoff": 0.0,  # Altitude for takeoff computation [m]
+            "distance_takeoff": 1330.0,  # Required takeoff distance [m]
+            "altitude_landing": 0.0,  # Altitude for landing computation [m]
+            "distance_landing": 1503.0,  # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
+            "MLW_frac": 38300 / 41500,  # Max Landing Weight / Max Takeoff Weight
+            "altitude_cruise": 35000 * ft2m,  # Cruise altitude [m]
+            "Mach_cruise": 0.79,  # Cruise Mach number
+            "range_cruise": 1200 * nm2m,  # Cruise range [m]
+            "loiter_time": 45 * 60,  # Loiter time [s]
+            "altitude_altcruise": 4572,  # Alternative cruise altitude [m]
+            "Mach_altcruise": 0.4,  # Alternative cruise Mach number
+            "range_altcruise": 200 * nm2m,  # Alternative cruise range [m]
+            "W_payload": 107 * 91 * gravity,  # Payload weight [N]
+            "xcg_payload": 14.4,  # Longitudinal position of the Payload center of gravity [m]
+            "W_crew": 5 * 91 * gravity,  # Crew weight [N]
+            "xcg_crew": 2.5,  # Longitudinal position of the Crew center of gravity [m]
+            "rho_f": 804,  # Fuel density kg/m3 (This is Jet A-1)
+            #'W0_guess' : 40000*gravity # Guess for MTOW
+        
+        }
 
     return airplane
