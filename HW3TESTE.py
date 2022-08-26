@@ -132,13 +132,12 @@ plt.legend()
 ###---------------------- END Exercício 4 ----------------------###
 ###---------------------- Exercício 5 ----------------------###
 
-S_Wet = dragDict["Swet"]
-S_ref = airplane["S_w"]
+Swet_over_Sref_historical = 6.26
 c_fe = 0.0026
 
 ############################ Cruise ############################
 
-CD0_Cruise = S_Wet / S_ref * c_fe
+CD0_Cruise = Swet_over_Sref_historical * c_fe
 AR = airplane["AR_w"]
 e_Cruise = 0.85
 
@@ -173,6 +172,9 @@ plt.plot(CD_Landing, CL_List[2], "--", label="Class 1: Landing")
 
 plt.legend()
 
+#plt.show()
+
+
 ############################ End Plotting ############################
 ###---------------------- END Exercício 5----------------------###
 
@@ -181,5 +183,58 @@ plt.legend()
 # Preencher tabela com os resultados do 5 e do 4 (PRA UM AVIÃO PARECIDO COM FOKKER 100)
 
 ###---------------------- Exercício 7 ----------------------###
+
+#print("RODOU ATÉ AQUI???")
+airplane = dt.standard_airplane("AviaoDoXerife")
+dt.geometry(airplane)
+
+CL_List = [
+    np.linspace(-0.5, 1.5454459846664212),
+    np.linspace(-0.5, 2.1726437504368183),
+    np.linspace(-0.5, 2.5907755942837496),
+]
+CD_List = [
+    np.zeros(len(CL_List[0])),
+    np.zeros(len(CL_List[1])),
+    np.zeros(len(CL_List[2])),
+]
+
+Mach_List = [0.75, 0.2, 0.2]
+Altitude_List = [11000, 0, 0]
+lgdown_List = [0, 1, 1]
+hground_List = [0, 10, 10]
+highliftconfig_List = ["clean", "takeoff", "landing"]
+
+Label_List = ["Cruise", "Takeoff", "Landing"]
+plt.figure(4)
+plt.title(
+    "$C_{D}$ x $C_{L}$",
+    fontsize="large",
+)
+plt.xlabel("$C_{D}$")
+plt.ylabel("$C_{L}$")
+
+for j in range(len(CL_List)):
+
+    count = 0
+    for i in CL_List[j]:
+
+        CD_List[j][count], CLmax, dragDict = dt.aerodynamics(
+            airplane,
+            Mach=Mach_List[j],
+            altitude=Altitude_List[j],
+            CL=i,
+            W0_guess=40000 * 9.81,
+            n_engines_failed=0,
+            highlift_config=highliftconfig_List[j],
+            lg_down=lgdown_List[j],
+            h_ground=hground_List[j],
+        )
+        count = count + 1
+
+    plt.plot(CD_List[j], CL_List[j], label=Label_List[j])
+
+plt.legend()
+plt.show()
 
 # Preencher tabela com os resultados do 5 e do 4 (PRO NOSSO AVIÃO)
