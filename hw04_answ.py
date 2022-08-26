@@ -62,9 +62,36 @@ for i in AR:
     count = count + 1
 
 plt.figure(countfig)
+plt.title("AR x MTOW")
+plt.xlabel("MTOW [N]")
+plt.ylabel("AR")
 plt.plot(W0_q2,AR)
 countfig = countfig+1
 
 
 plt.show()
 
+#Q3 A BIA VAI FAZER
+
+
+#Q5
+
+airplane = dt.standard_airplane('AviaoDoXerife')
+dt.geometry(airplane)
+
+W0_guess = 40000*9.81
+T0_guess = 0.3*W0_guess
+W0, We, Wf, Mf_cruise, xcg_e = dt.weight(W0_guess, T0_guess, airplane)
+
+
+print('Weights in Kg (AviaoDoXerife):')
+
+print('W0:',W0/9.81)
+print('We:',We/9.81)
+print('Wf:',Wf/9.81)
+print('Wp:',airplane['W_payload']/9.81)
+print('Wc:',airplane['W_crew']/9.81)
+
+print('breakdown:')
+for key in ['W_w','W_h','W_v','W_f','W_nlg','W_mlg','W_eng','W_allelse']:
+    print(key+': ',airplane[key]/9.81)
