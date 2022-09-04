@@ -105,7 +105,8 @@ T0_vec = np.zeros((len(SW), len(m)))
 deltaSWlan = np.zeros(len(SW))
 
 count = 0
-countfig = 1
+countfig += 1
+
 plt.figure(countfig)
 plt.title("T0/W0 x W0/Sw")
 plt.xlabel("W0/Sw")
@@ -120,7 +121,7 @@ for i in SW:
     dt.geometry(airplane_new)
 
     # Call the plotting function to make sure the aircraft is correct
-    dt.plot3d(airplane_new)
+    # dt.plot3d(airplane_new)
 
     # Execute the thrust on module
     W0_guess = 40000 * 9.81
