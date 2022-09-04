@@ -97,7 +97,7 @@ airplane_new = dt.standard_airplane("AviaoDoXerife")
 ## Q6-Q1
 
 # Modify one parameter (if necessary)
-SW = np.arange(80, 120, 1)
+SW = np.arange(130, 256, 1)
 m = np.arange(8)
 
 W0_vec = np.zeros(len(SW))
@@ -135,8 +135,8 @@ for i in SW:
     count = count + 1
 
 
-AREA = np.interp(0, [deltaSWlan[1], deltaSWlan[2]], [SW[1], SW[2]])
-PESO = np.interp(AREA, [SW[1], SW[2]], [W0_vec[1], W0_vec[2]])
+AREA = np.interp(0, [deltaSWlan[6], deltaSWlan[7]], [SW[6], SW[7]])
+PESO = np.interp(AREA, [SW[6], SW[7]], [W0_vec[6], W0_vec[7]])
 
 mylabels = [
     "Takeoff",
@@ -156,7 +156,9 @@ for j in m:
 
 print("Q6-Q1")
 plt.axvline(PESO / AREA, label=mylabels[8])
+plt.legend()
 
+# LIMITANTES: CRUISE, TAKEOFF AND LANDING
 ## Q6-Q3
 
 countfig = countfig + 1
