@@ -2662,7 +2662,7 @@ def plot3d(airplane, figname="3dview.png", az1=45, az2=-135):
     for xb, yb, zb in zip(Xb, Yb, Zb):
         ax.plot([xb], [yb], [zb], "w")
 
-    ax.set_box_aspect((1, 1, 1))
+    #ax.set_box_aspect((1, 1, 1))
     ax.view_init(az1, az2)
 
     fig.savefig(figname, dpi=300)
@@ -3166,7 +3166,7 @@ def standard_airplane(name="fokker100"):
             "tcr_w": 0.123,  # t/c of the root section of the wing
             "tct_w": 0.096,  # t/c of the tip section of the wing
             "Cht": 1.017,  # Horizontal tail volume coefficient
-            "Lc_h": 1.017,  # Non-dimensional lever of the horizontal tail (lever/wing_mac)
+            "Lc_h": 4.027,  # Non-dimensional lever of the horizontal tail (lever/wing_mac)
             "AR_h": 4.517,  # HT aspect ratio
             "taper_h": 0.445,  # HT taper ratio
             "sweep_h": 0.477871,  # HT sweep [rad]
@@ -3178,7 +3178,7 @@ def standard_airplane(name="fokker100"):
             "Cvt": 0.077,  # Vertical tail volume coefficient
             "Lb_v":0.45,  # Non-dimensional lever of the vertical tail (lever/wing_span)
             "AR_v": 1.474,  # VT aspect ratio
-            "taper_v": 1.474,  # VT taper ratio
+            "taper_v": 0.553,  # VT taper ratio
             "sweep_v": 0.654266,  # VT sweep [rad]
             "zr_v": 0.0,  # Vertical position of the VT [m]
             "tcr_v": 0.1,  # t/c of the root section of the VT
@@ -3214,17 +3214,16 @@ def standard_airplane(name="fokker100"):
             "b_slat_b_wing": 0.00,  # Fraction of the wing span occupied by slats
             "c_ail_c_wing": 0.27,  # Fraction of the wing chord occupied by aileron
             "b_ail_b_wing": 0.34,  # Fraction of the wing span occupied by aileron
-            "h_ground": 35.0
-            * ft2m,  # Distance to the ground for ground effect computation [m]
+            "h_ground": 35.0 * ft2m,  # Distance to the ground for ground effect computation [m]
             "k_exc_drag": 0.03,  # Excrescence drag factor
             "altitude_takeoff": 0.0,  # Altitude for takeoff computation [m]
-            "distance_takeoff": 1330.0,  # Required takeoff distance [m]
+            "distance_takeoff": 1500,  # Required takeoff distance [m]
             "altitude_landing": 0.0,  # Altitude for landing computation [m]
-            "distance_landing": 1503.0,  # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
-            "MLW_frac": 38300 / 41500,  # Max Landing Weight / Max Takeoff Weight
-            "altitude_cruise": 33000 * ft2m,  # Cruise altitude [m]
+            "distance_landing": 1500.0,  # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
+            "MLW_frac": 38300 / 41500,  # Max Landing Weight / Max Takeoff Weight NAO SEI
+            "altitude_cruise": 10000,  # Cruise altitude [m]
             "Mach_cruise": 0.79,  # Cruise Mach number
-            "range_cruise": 1484 * nm2m,  # Cruise range [m]
+            "range_cruise": 4000 *10**3,  # Cruise range [m]
             "loiter_time": 45 * 60,  # Loiter time [s]
             "altitude_altcruise": 4572,  # Alternative cruise altitude [m]
             "Mach_altcruise": 0.4,  # Alternative cruise Mach number
