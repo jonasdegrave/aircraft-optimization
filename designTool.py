@@ -3217,13 +3217,13 @@ def standard_airplane(name="fokker100"):
             "h_ground": 35.0 * ft2m,  # Distance to the ground for ground effect computation [m]
             "k_exc_drag": 0.03,  # Excrescence drag factor
             "altitude_takeoff": 0.0,  # Altitude for takeoff computation [m]
-            "distance_takeoff": 1500,  # Required takeoff distance [m]
+            "distance_takeoff": 1600,  # Required takeoff distance [m]
             "altitude_landing": 0.0,  # Altitude for landing computation [m]
-            "distance_landing": 1500.0,  # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
+            "distance_landing": 1600.0,  # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
             "MLW_frac": 38300 / 41500,  # Max Landing Weight / Max Takeoff Weight NAO SEI
             "altitude_cruise": 10000,  # Cruise altitude [m]
             "Mach_cruise": 0.79,  # Cruise Mach number
-            "range_cruise": 4000 *10**3,  # Cruise range [m]
+            "range_cruise": 3000 *10**3,  # Cruise range [m]
             "loiter_time": 45 * 60,  # Loiter time [s]
             "altitude_altcruise": 4572,  # Alternative cruise altitude [m]
             "Mach_altcruise": 0.4,  # Alternative cruise Mach number
