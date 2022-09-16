@@ -17,7 +17,7 @@ airplane = dt.standard_airplane("F70_XerifeEdition")
 
 # dt.geometry(airplane)
 # Modify one parameter (if necessary)
-# airplane['S_w'] = 93.5
+# airplane["range_cruise"] =  2000 * 10**3
 
 # Execute the geometry function from the designTools module (dt)
 airplane = dt.analyze(
