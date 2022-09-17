@@ -54,8 +54,11 @@ for i in SW:
     count = count + 1
 
 
-AREA = np.interp(0, [deltaSWlan[6], deltaSWlan[7]], [SW[6], SW[7]])
-PESO = np.interp(AREA, [SW[6], SW[7]], [W0_vec[6], W0_vec[7]])
+AREA = np.interp(0, [deltaSWlan[27], deltaSWlan[28]], [SW[27], SW[28]])
+PESO = np.interp(AREA, [SW[27], SW[28]], [W0_vec[27], W0_vec[28]])
+print("Sw_min = ", AREA)
+print("W0/Sw = ", PESO/AREA)
+
 
 mylabels = [
     "Takeoff",
@@ -77,6 +80,7 @@ print("Q6-Q1")
 plt.axvline(PESO / AREA, label=mylabels[8])
 plt.legend()
 
+
 # LIMITANTES: CRUISE, TAKEOFF AND LANDING
 ## Q6-Q3
 
@@ -89,9 +93,5 @@ plt.ylabel("W0")
 
 print("Q6-Q3")
 plt.plot(SW, W0_vec)
-
-#Área mínima de asa - MTOW de 38000
-Sw_min = SW[1]
-print("Sw_min = ", Sw_min)
 
 plt.show()

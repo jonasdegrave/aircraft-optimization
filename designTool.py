@@ -3370,18 +3370,18 @@ def standard_airplane(name="fokker100"):
         
         airplane = {
             "type": "transport",  # Can be 'transport', 'fighter', or 'general'
-            "S_w": 112.85,  # Wing area [m2]
-            "AR_w": 8.5,  # Wing aspect ratio
+            "S_w": 112,  # Wing area [m2]
+            "AR_w": 8.6,  # Wing aspect ratio
             "taper_w": 0.31,  # Wing taper ratio
-            "sweep_w": 15 * np.pi / 180,  # Wing sweep [rad]
+            "sweep_w": 16 * np.pi / 180,  # Wing sweep [rad]
             "dihedral_w": 3.3 * np.pi / 180,  # Wing dihedral [rad]
-            "xr_w": 10.66,  # Longitudinal position of the wing (with respect to the fuselage nose) [m]
+            "xr_w": 10.40,  # Longitudinal position of the wing (with respect to the fuselage nose) [m]
             "zr_w": -1.01,  # Vertical position of the wing (with respect to the fuselage nose) [m]
-            "tcr_w": 0.134,  # t/c of the root section of the wing
-            "tct_w": 0.088,  # t/c of the tip section of the wing
-            "Cht": 0.70,  # Horizontal tail volume coefficient
-            "Lc_h": 2.85,  # Non-dimensional lever of the horizontal tail (lever/wing_mac)
-            "AR_h": 4.41,  # HT aspect ratio
+            "tcr_w": 0.140,  # t/c of the root section of the wing
+            "tct_w": 0.085,  # t/c of the tip section of the wing
+            "Cht": 0.5,  # Horizontal tail volume coefficient
+            "Lc_h": 3.05,  # Non-dimensional lever of the horizontal tail (lever/wing_mac)
+            "AR_h": 4.75,  # HT aspect ratio
             "taper_h": 0.36,  # HT taper ratio
             "sweep_h": 29.14 * np.pi / 180,  # HT sweep [rad]
             "dihedral_h": 4.2 * np.pi / 180,  # HT dihedral [rad]
@@ -3389,9 +3389,9 @@ def standard_airplane(name="fokker100"):
             "tcr_h": 0.1,  # t/c of the root section of the HT
             "tct_h": 0.1,  # t/c of the tip section of the HT
             "eta_h": 1.0,  # Dynamic pressure factor of the HT
-            "Cvt": 0.056,  # Vertical tail volume coefficient
-            "Lb_v": 0.28,  # Non-dimensional lever of the vertical tail (lever/wing_span)
-            "AR_v": 1.184,  # VT aspect ratio
+            "Cvt": 0.054,  # Vertical tail volume coefficient
+            "Lb_v": 0.305,  # Non-dimensional lever of the vertical tail (lever/wing_span)
+            "AR_v": 1.314,  # VT aspect ratio
             "taper_v": 0.754,  # VT taper ratio
             "sweep_v": 35.57 * np.pi / 180,  # VT sweep [rad]
             "zr_v": 1.60,  # Vertical position of the VT [m]
@@ -3399,20 +3399,20 @@ def standard_airplane(name="fokker100"):
             "tct_v": 0.1,  # t/c of the tip section of the VT
             "L_f": 25.38,  # Fuselage length [m] <- Otimizado de acordo com a planilha PrestoCabin (ln 372)
             "D_f": 3.24,  # Fuselage diameter [m] <- Otimizado de acordo com a planilha PrestoCabin (ln 136)
-            "x_n": 16.80,  # Longitudinal position of the nacelle frontal face [m]
-            "y_n": 1.95,  # Lateral position of the nacelle centerline [m]
+            "x_n": 16.85,  # Longitudinal position of the nacelle frontal face [m]
+            "y_n": 2.80,  # Lateral position of the nacelle centerline [m]
             "z_n": 0.85,  # Vertical position of the nacelle centerline [m]
-            "L_n": 4.3,  # Nacelle length [m]
-            "D_n": 1.51,  # Nacelle diameter [m]
+            "L_n": 3.70,  # Nacelle length [m]
+            "D_n": 1.70,  # Nacelle diameter [m]
             "n_engines": 2,  # Number of engines
             "n_engines_under_wing": 0,  # Number of engines installed under the wing
             "engine": {
                 "model": "Howe turbofan",  # Check engineTSFC function for options
                 "BPR": 5,  # Engine bypass ratio
-                "Cbase": 0.36/ 3600
-            },
+                "Cbase": 0.38/ 3600,
+            }, # Motor CF34-10E5
             "x_nlg": 3.64,  # Longitudinal position of the nose landing gear [m]
-            "x_mlg": 14.70,  # Longitudinal position of the main landing gear [m]
+            "x_mlg": 14.50,  # Longitudinal position of the main landing gear [m]
             "y_mlg": 2.52,  # Lateral position of the main landing gear [m]
             "z_lg": -3.05,  # Vertical position of the landing gear [m]
             "x_tailstrike": 21.53,  # Longitudinal position of critical tailstrike point [m]
@@ -3435,11 +3435,10 @@ def standard_airplane(name="fokker100"):
             "distance_takeoff": 1300,  # Required takeoff distance [m]
             "altitude_landing": 0.0,  # Altitude for landing computation [m]
             "distance_landing": 1210.0,  # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
-            "MLW_frac": 38300
-            / 41500,  # Max Landing Weight / Max Takeoff Weight NAO SEI
+            "MLW_frac": 34400/37527,  # Max Landing Weight / Max Takeoff Weight NAO SEI
             "altitude_cruise": 10000,  # Cruise altitude [m]
-            "Mach_cruise": 0.77,  # Cruise Mach number
-            "range_cruise": 4000 * 10**3,  # Cruise range [m]
+            "Mach_cruise": 0.76,  # Cruise Mach number
+            "range_cruise": 4200 * 10**3,  # Cruise range [m]
             "loiter_time": 45 * 60,  # Loiter time [s]
             "altitude_altcruise": 4572,  # Alternative cruise altitude [m]
             "Mach_altcruise": 0.4,  # Alternative cruise Mach number
