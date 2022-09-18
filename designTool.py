@@ -3370,36 +3370,36 @@ def standard_airplane(name="fokker100"):
         
         airplane = {
             "type": "transport",  # Can be 'transport', 'fighter', or 'general'
-            "S_w": 112,  # Wing area [m2]
-            "AR_w": 8.6,  # Wing aspect ratio
-            "taper_w": 0.31,  # Wing taper ratio
-            "sweep_w": 16 * np.pi / 180,  # Wing sweep [rad]
+            "S_w": 93,  # Wing area [m2]
+            "AR_w": 8.0,  # Wing aspect ratio
+            "taper_w": 0.28,  # Wing taper ratio
+            "sweep_w": 16.5 * np.pi / 180,  # Wing sweep [rad]
             "dihedral_w": 3.3 * np.pi / 180,  # Wing dihedral [rad]
-            "xr_w": 10.40,  # Longitudinal position of the wing (with respect to the fuselage nose) [m]
+            "xr_w": 12.82,  # Longitudinal position of the wing (with respect to the fuselage nose) [m]
             "zr_w": -1.01,  # Vertical position of the wing (with respect to the fuselage nose) [m]
             "tcr_w": 0.140,  # t/c of the root section of the wing
-            "tct_w": 0.085,  # t/c of the tip section of the wing
-            "Cht": 0.5,  # Horizontal tail volume coefficient
-            "Lc_h": 3.05,  # Non-dimensional lever of the horizontal tail (lever/wing_mac)
+            "tct_w": 0.075,  # t/c of the tip section of the wing
+            "Cht": 0.78,  # Horizontal tail volume coefficient
+            "Lc_h": 3.7,  # Non-dimensional lever of the horizontal tail (lever/wing_mac)
             "AR_h": 4.75,  # HT aspect ratio
             "taper_h": 0.36,  # HT taper ratio
             "sweep_h": 29.14 * np.pi / 180,  # HT sweep [rad]
             "dihedral_h": 4.2 * np.pi / 180,  # HT dihedral [rad]
-            "zr_h": 6,  # Vertical position of the HT [m]
+            "zr_h": 5.2,  # Vertical position of the HT [m]
             "tcr_h": 0.1,  # t/c of the root section of the HT
             "tct_h": 0.1,  # t/c of the tip section of the HT
             "eta_h": 1.0,  # Dynamic pressure factor of the HT
-            "Cvt": 0.054,  # Vertical tail volume coefficient
-            "Lb_v": 0.305,  # Non-dimensional lever of the vertical tail (lever/wing_span)
+            "Cvt": 0.05,  # Vertical tail volume coefficient
+            "Lb_v": 0.42,  # Non-dimensional lever of the vertical tail (lever/wing_span)
             "AR_v": 1.314,  # VT aspect ratio
             "taper_v": 0.754,  # VT taper ratio
             "sweep_v": 35.57 * np.pi / 180,  # VT sweep [rad]
-            "zr_v": 1.60,  # Vertical position of the VT [m]
+            "zr_v": 3.24/2,  # Vertical position of the VT [m]
             "tcr_v": 0.1,  # t/c of the root section of the VT
             "tct_v": 0.1,  # t/c of the tip section of the VT
-            "L_f": 25.38,  # Fuselage length [m] <- Otimizado de acordo com a planilha PrestoCabin (ln 372)
+            "L_f": 29.27,  # Fuselage length [m] <- Otimizado de acordo com a planilha PrestoCabin (ln 372)
             "D_f": 3.24,  # Fuselage diameter [m] <- Otimizado de acordo com a planilha PrestoCabin (ln 136)
-            "x_n": 16.85,  # Longitudinal position of the nacelle frontal face [m]
+            "x_n": 22.5,  # Longitudinal position of the nacelle frontal face [m]
             "y_n": 2.80,  # Lateral position of the nacelle centerline [m]
             "z_n": 0.85,  # Vertical position of the nacelle centerline [m]
             "L_n": 3.70,  # Nacelle length [m]
@@ -3412,11 +3412,11 @@ def standard_airplane(name="fokker100"):
                 "Cbase": 0.38/ 3600,
             }, # Motor CF34-10E5
             "x_nlg": 3.64,  # Longitudinal position of the nose landing gear [m]
-            "x_mlg": 14.50,  # Longitudinal position of the main landing gear [m]
+            "x_mlg": 16.82,  # Longitudinal position of the main landing gear [m]
             "y_mlg": 2.52,  # Lateral position of the main landing gear [m]
             "z_lg": -3.05,  # Vertical position of the landing gear [m]
-            "x_tailstrike": 21.53,  # Longitudinal position of critical tailstrike point [m]
-            "z_tailstrike": -0.84,  # Vertical position of critical tailstrike point [m]
+            "x_tailstrike": 22,  # Longitudinal position of critical tailstrike point [m]
+            "z_tailstrike": -0.64,  # Vertical position of critical tailstrike point [m]
             "c_tank_c_w": 0.4,  # Fraction of the wing chord occupied by the fuel tank
             "x_tank_c_w": 0.2,  # Fraction of the wing chord where fuel tank starts
             "clmax_w": 1.5,  # Maximum lift coefficient of wing airfoil
@@ -3432,19 +3432,19 @@ def standard_airplane(name="fokker100"):
             * ft2m,  # Distance to the ground for ground effect computation [m]
             "k_exc_drag": 0.03,  # Excrescence drag factor
             "altitude_takeoff": 0.0,  # Altitude for takeoff computation [m]
-            "distance_takeoff": 1300,  # Required takeoff distance [m]
+            "distance_takeoff": 1600,  # Required takeoff distance [m]
             "altitude_landing": 0.0,  # Altitude for landing computation [m]
-            "distance_landing": 1210.0,  # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
+            "distance_landing": 1600, # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
             "MLW_frac": 34400/37527,  # Max Landing Weight / Max Takeoff Weight NAO SEI
             "altitude_cruise": 10000,  # Cruise altitude [m]
             "Mach_cruise": 0.76,  # Cruise Mach number
-            "range_cruise": 4200 * 10**3,  # Cruise range [m]
+            "range_cruise": 4500 * 10**3,  # Cruise range [m]
             "loiter_time": 45 * 60,  # Loiter time [s]
             "altitude_altcruise": 4572,  # Alternative cruise altitude [m]
             "Mach_altcruise": 0.4,  # Alternative cruise Mach number
             "range_altcruise": 200 * nm2m,  # Alternative cruise range [m]
             "W_payload": 76 * 91 * gravity,  # Payload weight [N]
-            "xcg_payload": 12.06,  # Longitudinal position of the Payload center of gravity [m]
+            "xcg_payload": 12.26,  # Longitudinal position of the Payload center of gravity [m]
             "W_crew": 4 * 91 * gravity,  # Crew weight [N]
             "xcg_crew": 2.5,  # Longitudinal position of the Crew center of gravity [m]
             "rho_f": 804,  # Fuel density kg/m3 (This is Jet A-1)

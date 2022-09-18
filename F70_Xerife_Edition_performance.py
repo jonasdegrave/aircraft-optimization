@@ -6,13 +6,7 @@ import numpy as np
 import pprint
 
 airplane_new = dt.standard_airplane("F70_XerifeEdition")
-main_offset = 0
-nlg_offset = 0.4
-airplane_new["xr_w"] =  airplane_new["xr_w"] - main_offset
-airplane_new["xcg_payload"] = 12.06
-airplane_new["x_mlg"] = airplane_new["x_mlg"] - main_offset + 0.3
-airplane_new["x_n"] = airplane_new["x_n"] - main_offset + 0.1
-airplane_new["x_nlg"] = airplane_new["x_nlg"] + nlg_offset
+
 ## Q6-Q1
 
 # Modify one parameter (if necessary)
