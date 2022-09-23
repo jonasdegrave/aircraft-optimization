@@ -3411,7 +3411,7 @@ def standard_airplane(name="fokker100"):
                 "BPR": 4.9,  # Engine bypass ratio
                 "Cbase": 0.39/ 3600,
                 "weight": 1120*gravity
-            }, # Motor CF34-10E5
+            }, # Motor CF34-C5
             "x_nlg": 3.64,  # Longitudinal position of the nose landing gear [m]
             "x_mlg": 16.82,  # Longitudinal position of the main landing gear [m]
             "y_mlg": 2.52,  # Lateral position of the main landing gear [m]
