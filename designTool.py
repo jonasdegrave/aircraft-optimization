@@ -3370,7 +3370,7 @@ def standard_airplane(name="fokker100"):
         
         airplane = {
             "type": "transport",  # Can be 'transport', 'fighter', or 'general'
-            "S_w": 93,  # Wing area [m2]
+            "S_w": 92,  # Wing area [m2]
             "AR_w": 8.0,  # Wing aspect ratio
             "taper_w": 0.28,  # Wing taper ratio
             "sweep_w": 16.5 * np.pi / 180,  # Wing sweep [rad]
@@ -3402,14 +3402,15 @@ def standard_airplane(name="fokker100"):
             "x_n": 22.5,  # Longitudinal position of the nacelle frontal face [m]
             "y_n": 2.80,  # Lateral position of the nacelle centerline [m]
             "z_n": 0.85,  # Vertical position of the nacelle centerline [m]
-            "L_n": 3.70,  # Nacelle length [m]
-            "D_n": 1.70,  # Nacelle diameter [m]
+            "L_n": 3.27,  # Nacelle length [m]
+            "D_n": 1.64,  # Nacelle diameter [m]
             "n_engines": 2,  # Number of engines
             "n_engines_under_wing": 0,  # Number of engines installed under the wing
             "engine": {
                 "model": "Howe turbofan",  # Check engineTSFC function for options
-                "BPR": 5,  # Engine bypass ratio
-                "Cbase": 0.38/ 3600,
+                "BPR": 4.9,  # Engine bypass ratio
+                "Cbase": 0.39/ 3600,
+                "weight": 1120*gravity
             }, # Motor CF34-10E5
             "x_nlg": 3.64,  # Longitudinal position of the nose landing gear [m]
             "x_mlg": 16.82,  # Longitudinal position of the main landing gear [m]
@@ -3438,7 +3439,7 @@ def standard_airplane(name="fokker100"):
             "MLW_frac": 34400/37527,  # Max Landing Weight / Max Takeoff Weight NAO SEI
             "altitude_cruise": 10000,  # Cruise altitude [m]
             "Mach_cruise": 0.76,  # Cruise Mach number
-            "range_cruise": 4500 * 10**3,  # Cruise range [m]
+            "range_cruise": 4550 * 10**3,  # Cruise range [m]
             "loiter_time": 45 * 60,  # Loiter time [s]
             "altitude_altcruise": 4572,  # Alternative cruise altitude [m]
             "Mach_altcruise": 0.4,  # Alternative cruise Mach number
