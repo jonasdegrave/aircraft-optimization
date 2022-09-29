@@ -3420,7 +3420,7 @@ def standard_airplane(name="fokker100"):
             "z_tailstrike": -0.64,  # Vertical position of critical tailstrike point [m]
             "c_tank_c_w": 0.4,  # Fraction of the wing chord occupied by the fuel tank
             "x_tank_c_w": 0.2,  # Fraction of the wing chord where fuel tank starts
-            "clmax_w": 1.5,  # Maximum lift coefficient of wing airfoil
+            "clmax_w": 1.8,  # Maximum lift coefficient of wing airfoil
             "flap_type": "double slotted",  # Flap type
             "c_flap_c_wing": 0.30,  # Fraction of the wing chord occupied by flaps
             "b_flap_b_wing": 0.60,  # Fraction of the wing span occupied by flaps (including fuselage portion)
