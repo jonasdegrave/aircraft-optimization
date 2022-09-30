@@ -3413,7 +3413,7 @@ def standard_airplane(name="fokker100"):
                 "weight": 1120*gravity
             }, # Motor CF34-C5
             "x_nlg": 3.64,  # Longitudinal position of the nose landing gear [m]
-            "x_mlg": 16.82,  # Longitudinal position of the main landing gear [m]
+            "x_mlg": 17.10,  # Longitudinal position of the main landing gear [m]
             "y_mlg": 2.52,  # Lateral position of the main landing gear [m]
             "z_lg": -3.05,  # Vertical position of the landing gear [m]
             "x_tailstrike": 22,  # Longitudinal position of critical tailstrike point [m]
