@@ -3413,7 +3413,7 @@ def standard_airplane(name="fokker100"):
                 "weight": 1120*gravity
             }, # Motor CF34-C5
             "x_nlg": 3.64,  # Longitudinal position of the nose landing gear [m]
-            "x_mlg": 16.82,  # Longitudinal position of the main landing gear [m]
+            "x_mlg": 17.10,  # Longitudinal position of the main landing gear [m]
             "y_mlg": 2.52,  # Lateral position of the main landing gear [m]
             "z_lg": -3.05,  # Vertical position of the landing gear [m]
             "x_tailstrike": 22,  # Longitudinal position of critical tailstrike point [m]
@@ -3437,9 +3437,9 @@ def standard_airplane(name="fokker100"):
             "altitude_landing": 0.0,  # Altitude for landing computation [m]
             "distance_landing": 1600, # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
             "MLW_frac": 34400/37527,  # Max Landing Weight / Max Takeoff Weight NAO SEI
-            "altitude_cruise": 10000,  # Cruise altitude [m]
+            "altitude_cruise": 11800,  # Cruise altitude [m]
             "Mach_cruise": 0.76,  # Cruise Mach number
-            "range_cruise": 4550 * 10**3,  # Cruise range [m]
+            "range_cruise": 4700 * 10**3,  # Cruise range [m]
             "loiter_time": 45 * 60,  # Loiter time [s]
             "altitude_altcruise": 4572,  # Alternative cruise altitude [m]
             "Mach_altcruise": 0.4,  # Alternative cruise Mach number

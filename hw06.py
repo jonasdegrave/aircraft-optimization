@@ -17,7 +17,7 @@ airplane = dt.standard_airplane("F70_XerifeEdition")
 
 # dt.geometry(airplane)
 # Modify one parameter (if necessary)
-airplane["range_cruise"] =  4550 * 10**3
+# airplane["range_cruise"] =  4700 * 10**3
 # airplane["xr_w"] = 12.82
 # airplane["Lc_h"] = 3.7
 # airplane["Lb_v"] = 0.42
