@@ -17,11 +17,14 @@ airplane = dt.standard_airplane("F70_XerifeEdition")
 
 # dt.geometry(airplane)
 # Modify one parameter (if necessary)
-# airplane["range_cruise"] =  4700 * 10**3
-# airplane["xr_w"] = 12.82
+# "W_payload": 76 * 91 * gravity
+airplane["W_payload"] = (76*97.0688 + 460)*gravity
+airplane["range_cruise"] = 4100*(10**3)
+# airplane[ "altitude_cruise"] = 11800
 # airplane["Lc_h"] = 3.7
 # airplane["Lb_v"] = 0.42
-# airplane["xcg_payload"] = 12.26
+airplane["xcg_payload"] = 12.26+0.5
+airplane["W_crew"] = 408.233 * gravity
 # airplane["x_mlg"] = airplane["xr_w"] + 4
 
 # Execute the geometry function from the designTools module (dt)

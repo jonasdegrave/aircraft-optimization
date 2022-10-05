@@ -8,13 +8,16 @@ import pprint
 
 airplane = dt.standard_airplane("F70_XerifeEdition")
 dt.geometry(airplane)
-
-airplane["range_cruise"] =  4500 * 10**3
-airplane["xr_w"] = 12.82
-airplane["Lc_h"] = 3.7
-airplane["Lb_v"] = 0.42
-airplane["xcg_payload"] = 12.26
-airplane["x_mlg"] = airplane["xr_w"] + 4
+gravity = 9.81
+airplane["W_payload"] = (76*97.0688 + 460)*gravity
+airplane["range_cruise"] = 4100*(10**3)
+airplane["xcg_payload"] = 12.26+.2
+# airplane["range_cruise"] =  4500 * 10**3
+# airplane["xr_w"] = 12.82
+# airplane["Lc_h"] = 3.7
+# airplane["Lb_v"] = 0.42
+# airplane["xcg_payload"] = 12.26
+# airplane["x_mlg"] = airplane["xr_w"] + 4
 
 W0_guess = 5e3 * airplane["S_w"]
 T0_guess = 0.3*W0_guess
