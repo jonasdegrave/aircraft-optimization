@@ -6,11 +6,12 @@ import numpy as np
 import pprint
 
 airplane_new = dt.standard_airplane("F70_XerifeEdition")
+#airplane_new["altitude_cruise"]= 11000  # Cruise altitude [m]
+dt.geometry(airplane_new)
 
 ## Q6-Q1
 
-# Modify one parameter (if necessary)
-SW = np.arange(85, 256, 1)
+SW = np.arange(75, 256, 1)
 m = np.arange(8)
 
 W0_vec = np.zeros(len(SW))
@@ -36,8 +37,9 @@ for i in SW:
     # Call the plotting function to make sure the aircraft is correct
     # dt.plot3d(airplane_new)
 
+
     # Execute the thrust on module
-    W0_guess = 30000 * 9.81
+    W0_guess = 39000 * 9.81
     T0_guess = 0.3 * W0_guess
     dt.thrust_matching(W0_guess, T0_guess, airplane_new)
 
@@ -47,11 +49,10 @@ for i in SW:
 
     count = count + 1
 
-
-AREA = np.interp(0, [deltaSWlan[27], deltaSWlan[28]], [SW[27], SW[28]])
-PESO = np.interp(AREA, [SW[27], SW[28]], [W0_vec[27], W0_vec[28]])
+AREA = np.interp(0, [deltaSWlan[5], deltaSWlan[6]], [SW[5], SW[6]])
+PESO = np.interp(AREA, [SW[5], SW[6]], [W0_vec[5], W0_vec[6]])
 print("Sw_min = ", AREA)
-print("W0/Sw = ", PESO/AREA)
+#print("W0/Sw = ", PESO/AREA)
 
 
 mylabels = [
@@ -64,14 +65,19 @@ mylabels = [
     "Balked L. Climb",
     "Balked Climb OEI",
     "Landing",
+    "Our project"
 ]
 
 for j in m:
 
     plt.plot(W0_vec[:] / SW, T0_vec[:, j] / W0_vec[:], label=mylabels[j])
 
-print("Q6-Q1")
+airplane_aux = dt.standard_airplane("F70_XerifeEdition")
+dt.analyze(airplane_aux)
+W0_over_Sw = airplane_aux["W0"]/airplane_aux["S_w"]
+T0_over_W0 = airplane_aux["T0"]/airplane_aux["W0"]
 plt.axvline(PESO / AREA, label=mylabels[8])
+plt.scatter(W0_over_Sw, T0_over_W0, label=mylabels[9])
 plt.legend()
 
 

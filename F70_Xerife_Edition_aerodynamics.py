@@ -10,9 +10,9 @@ airplane = dt.standard_airplane("F70_XerifeEdition")
 dt.geometry(airplane)
 
 CL_List = [
-    np.linspace(-0.5, 1.5454459846664212),
-    np.linspace(-0.5, 2.1726437504368183),
-    np.linspace(-0.5, 2.5907755942837496),
+    np.linspace(-0.5, 1.5532879704864728),
+    np.linspace(-0.5, 2.170063659288774),
+    np.linspace(-0.5, 2.5812474518236415),
 ]
 CD_List = [
     np.zeros(len(CL_List[0])),
@@ -20,11 +20,14 @@ CD_List = [
     np.zeros(len(CL_List[2])),
 ]
 
-Mach_List = [0.75, 0.2, 0.2]
-Altitude_List = [11000, 0, 0]
+CLmax_List = [0, 0, 0]
+
+Mach_List = [0.76, 0.2, 0.2]
+Altitude_List = [11800, 0, 0]
 lgdown_List = [0, 1, 1]
 hground_List = [0, 10, 10]
 highliftconfig_List = ["clean", "takeoff", "landing"]
+
 
 Label_List = ["Cruise", "Takeoff", "Landing"]
 plt.figure(1)
@@ -40,7 +43,7 @@ for j in range(len(CL_List)):
     count = 0
     for i in CL_List[j]:
 
-        CD_List[j][count], CLmax, dragDict = dt.aerodynamics(
+        CD_List[j][count], CLmax_List[j], dragDict = dt.aerodynamics(
             airplane,
             Mach=Mach_List[j],
             altitude=Altitude_List[j],
