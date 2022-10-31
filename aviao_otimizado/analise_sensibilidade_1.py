@@ -27,10 +27,13 @@ from aux_tools_doe import corrdot
 def des_funcs(Xinp):
     
     airplane = dt.standard_airplane("F70_XerifeEdition")
-    Range = Xinp
+    Range, AR_w, S_w, sweep_w, Mach_cruise, altitude_cruise = Xinp
     airplane['range_cruise'] = Range
-    #airplane['AR_w'] = AR_w
-    #airplane['S_w'] = S_w
+    airplane['AR_w'] = AR_w
+    airplane['S_w'] = S_w
+    airplane['sweep_w'] = sweep_w
+    airplane['Mach_cruise'] = Mach_cruise
+    airplane['altitude_cruise'] = altitude_cruise
     result = dt.analyze(
         airplane=airplane,
         print_log=False,  # Plot results on the terminal screen
@@ -50,14 +53,28 @@ def des_funcs(Xinp):
     return Wf_W0, We_W0, T0_W0, W0_S, SM_fwd, SM_aft
 
 # Give number of input variables
-n_var = 1
+n_var = 6
 
 # Lower and upeer bounds of each input variable
-lb = [3000]
-ub = [6000]
+
+Sweep_Lower = ( 16.5 * np.pi / 180 ) * 0.4
+Sweep_Upper = 35 * np.pi / 180
+MachCruise_Lower = 0.75
+MachCruise_Upper = 0.85
+AR_Lower = 6
+AR_Upper = 11
+SW_Lower = 60
+SW_Upper = 130
+Range_Lower = 4500000
+Range_Upper = 5500000
+AltCruise_Lower = 10000 
+AltCruise_Upper = 12000
+
+lb = [Range_Lower, AR_Lower, SW_Lower, Sweep_Lower, MachCruise_Lower, AltCruise_Lower]
+ub = [Range_Upper, AR_Upper, SW_Upper, Sweep_Upper, MachCruise_Upper, AltCruise_Upper]
 
 # Desired number of samples
-n_samples = 100
+n_samples = 1000
 
 # Sampling type
 #sampler = FloatRandomSampling()
@@ -105,8 +122,11 @@ for ii in range(n_samples):
 
 # Create a pandas dataframe with all the information
 df = pd.DataFrame({'Range' : X[:,0],
-                   #'AR_w' : X[:,0],
-                   #'S_w' : X[:,1],
+                   'AR_w' : X[:,1],
+                   'S_w' : X[:,2],
+                   'sweep_w' : X[:,3],
+                   'Mach_cruise' : X[:,4],
+                   'altitude_cruise' : X[:,5],
                    'Wf_W0' : y1_samples,
                    'We_W0' : y2_samples,
                    'T0 / W0' : y3_samples,
@@ -115,7 +135,7 @@ df = pd.DataFrame({'Range' : X[:,0],
                    'SM_aft' : y6_samples})
 
 # Plot the correlation matrix
-sns.set(style='white', font_scale=1.1)
+sns.set(style='white', font_scale=0.8)
 
 if plot_type == 0:
 
