@@ -12,17 +12,45 @@ from pymoo.optimize import minimize
 
 import designTool as dt
 
+from sklearn.preprocessing import StandardScaler
+
+import matplotlib.pyplot as plt
+
+
+def Normalize(x, xmin, xmax):
+    
+    y = (x - xmin)/(xmax - xmin)
+    
+    return y
+
+def Denormalize(y, xmin, xmax):
+    
+    x = y*(xmax - xmin) + xmin
+    
+    return x
+
 class MyProblem(ElementwiseProblem):
 
     def __init__(self):
         
         self.airplane = dt.standard_airplane("F70_XerifeEdition")
         
-        Sweep_Lower = ( 16.5 * np.pi / 180 ) * 0.4
-        Sweep_Upper = 35 * np.pi / 180
+
+
+        
+        super().__init__(n_var=6,
+                         n_obj=1,
+                         n_ieq_constr=13,
+                         xl=np.array([ 0, 0, 0, 0, 0, 0 ]),
+                         xu=np.array([ 1, 1, 1, 1, 1, 1 ]))
+
+    def _evaluate(self, x, out, *args, **kwargs):
+        
         # Dihedral_Lower = ( 3.3 * np.pi / 180 ) * 0.4
         # Dihedral_Upper = ( 3.3 * np.pi / 180 ) * 1.6
-        MachCruise_Lower = 0.75
+        Sweep_Lower = (6.6 * np.pi / 180)
+        Sweep_Upper = (35 * np.pi / 180)
+        MachCruise_Lower = 0.77
         MachCruise_Upper = 0.85
         AR_Lower = 6
         AR_Upper = 11
@@ -30,17 +58,15 @@ class MyProblem(ElementwiseProblem):
         SW_Upper = 130
         Range_Lower = 4500000
         Range_Upper = 5500000
-        AltCruise_Lower = 10000 
-        AltCruise_Upper = 12000
-
+        AltCruise_Lower = 11000 
+        AltCruise_Upper = 14000
         
-        super().__init__(n_var=6,
-                         n_obj=1,
-                         n_ieq_constr=12,
-                         xl=np.array([ Sweep_Lower, MachCruise_Lower, AR_Lower, SW_Lower, Range_Lower, AltCruise_Lower ]),
-                         xu=np.array([ Sweep_Upper, MachCruise_Upper, AR_Upper, SW_Upper, Range_Upper, AltCruise_Upper ]))
-
-    def _evaluate(self, x, out, *args, **kwargs):
+        x[0] = Denormalize (x[0], Sweep_Lower, Sweep_Upper)
+        x[1] = Denormalize (x[1], MachCruise_Lower, MachCruise_Upper)
+        x[2] = Denormalize (x[2], AR_Lower, AR_Upper)
+        x[3] = Denormalize (x[3], SW_Lower, SW_Upper)
+        x[4] = Denormalize (x[4], Range_Lower, Range_Upper)
+        x[5] = Denormalize (x[5], AltCruise_Lower, AltCruise_Upper)
         
         self.airplane["sweep_w"] = x[0]
         self.airplane["Mach_cruise"] = x[1]
@@ -84,10 +110,11 @@ class MyProblem(ElementwiseProblem):
         g10 =   airplane["b_tank_b_w"]/0.95 - 1
         g11 =   airplane["b_w"]/36 - 1
         g12 =   airplane["CLv"]/0.75 - 1
+        g13 =   airplane["T0"]/130000 - 1
         
         out["F"] = [f1]
-        out["G"] = [g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12]
-
+        out["G"] = [g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13]
+        
 
 problem = MyProblem()
 
@@ -110,4 +137,33 @@ res = minimize(problem,
                verbose=True)
 
 X = res.X
+
+Sweep_Lower = (6.6 * np.pi / 180)
+Sweep_Upper = (35 * np.pi / 180)
+MachCruise_Lower = 0.77
+MachCruise_Upper = 0.85
+AR_Lower = 6
+AR_Upper = 11
+SW_Lower = 60
+SW_Upper = 130
+Range_Lower = 4500000
+Range_Upper = 5500000
+AltCruise_Lower = 11000 
+AltCruise_Upper = 14000
+
+Sweep = (Denormalize (X[0], Sweep_Lower, Sweep_Upper))*(180/np.pi)
+MachCruise = Denormalize (X[1], MachCruise_Lower, MachCruise_Upper)
+AR_w = Denormalize (X[2], AR_Lower, AR_Upper)
+S_w = Denormalize (X[3], SW_Lower, SW_Upper)
+Range = Denormalize (X[4], Range_Lower, Range_Upper)
+AltCruise = Denormalize (X[5], AltCruise_Lower, AltCruise_Upper)
+T0 = 130000 + res.G[12]*130000
+
 F = res.F
+
+n_evals = np.array([e.evaluator.n_eval for e in res.history])
+opt = np.array([e.opt[0].F for e in res.history])
+
+plt.title("Convergence")
+plt.plot(n_evals, -opt, "--")
+plt.show()
