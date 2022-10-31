@@ -40,7 +40,7 @@ class MyProblem(ElementwiseProblem):
         
         super().__init__(n_var=6,
                          n_obj=1,
-                         n_ieq_constr=13,
+                         n_ieq_constr=16,
                          xl=np.array([ 0, 0, 0, 0, 0, 0 ]),
                          xu=np.array([ 1, 1, 1, 1, 1, 1 ]))
 
@@ -111,23 +111,26 @@ class MyProblem(ElementwiseProblem):
         g11 =   airplane["b_w"]/36 - 1
         g12 =   airplane["CLv"]/0.75 - 1
         g13 =   airplane["T0"]/130000 - 1
+        g14 =   (airplane["xr_v"] + airplane["cr_v"])/(airplane["L_f"] - 0.5) - 1
+        g15 =   abs(airplane["xr_h"] - airplane["xt_v"])/0.2 - 1
+        g16 =   abs(airplane["cr_h"] - airplane["ct_v"])/0.5 - 1
         
         out["F"] = [f1]
-        out["G"] = [g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13]
+        out["G"] = [g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12, g13, g14, g15, g16]
         
 
 problem = MyProblem()
 
 algorithm = NSGA2(
     pop_size=200,
-    n_offsprings=50,
+    n_offsprings=100,
     sampling=FloatRandomSampling(),
     crossover=SBX(prob=0.9, eta=15),
     mutation=PM(eta=20),
     eliminate_duplicates=True
 )
 
-termination = get_termination("n_gen", 100)
+termination = get_termination("n_gen", 400)
 
 res = minimize(problem,
                algorithm,
