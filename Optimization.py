@@ -38,11 +38,11 @@ class MyProblem(ElementwiseProblem):
 
 
         
-        super().__init__(n_var=6,
+        super().__init__(n_var=7,
                          n_obj=1,
                          n_ieq_constr=16,
-                         xl=np.array([ 0, 0, 0, 0, 0, 0 ]),
-                         xu=np.array([ 1, 1, 1, 1, 1, 1 ]))
+                         xl=np.array([ 0, 0, 0, 0, 0, 0, 0]),
+                         xu=np.array([ 1, 1, 1, 1, 1, 1, 1 ]))
 
     def _evaluate(self, x, out, *args, **kwargs):
         
@@ -60,6 +60,9 @@ class MyProblem(ElementwiseProblem):
         Range_Upper = 5500000
         AltCruise_Lower = 11000 
         AltCruise_Upper = 14000
+        xr_w_Lower = 10
+        xr_w_Upper = 15
+        
         
         x[0] = Denormalize (x[0], Sweep_Lower, Sweep_Upper)
         x[1] = Denormalize (x[1], MachCruise_Lower, MachCruise_Upper)
@@ -67,14 +70,17 @@ class MyProblem(ElementwiseProblem):
         x[3] = Denormalize (x[3], SW_Lower, SW_Upper)
         x[4] = Denormalize (x[4], Range_Lower, Range_Upper)
         x[5] = Denormalize (x[5], AltCruise_Lower, AltCruise_Upper)
-        
+        x[6] = Denormalize (x[6], xr_w_Lower, xr_w_Upper)
+       
+        # self.airplane["dihedral_w"] = x[1]
         self.airplane["sweep_w"] = x[0]
         self.airplane["Mach_cruise"] = x[1]
-        # self.airplane["dihedral_w"] = x[1]
         self.airplane["AR_w"] = x[2]
         self.airplane["S_w"] = x[3]
         self.airplane["range_cruise"] = x[4]
         self.airplane["altitude_cruise"] = x[5]
+        self.airplane["xr_w"] = x[6]
+        self.airplane["x_mlg"] = x[6] + 4.28
         
         airplane = dt.analyze(
             airplane=self.airplane,
@@ -153,6 +159,8 @@ Range_Lower = 4500000
 Range_Upper = 5500000
 AltCruise_Lower = 11000 
 AltCruise_Upper = 14000
+xr_w_Lower = 10
+xr_w_Upper = 15
 
 Sweep = (Denormalize (X[0], Sweep_Lower, Sweep_Upper))*(180/np.pi)
 MachCruise = Denormalize (X[1], MachCruise_Lower, MachCruise_Upper)
@@ -160,6 +168,7 @@ AR_w = Denormalize (X[2], AR_Lower, AR_Upper)
 S_w = Denormalize (X[3], SW_Lower, SW_Upper)
 Range = Denormalize (X[4], Range_Lower, Range_Upper)
 AltCruise = Denormalize (X[5], AltCruise_Lower, AltCruise_Upper)
+xr_w = Denormalize (X[6], xr_w_Lower, xr_w_Upper)
 T0 = 130000 + res.G[12]*130000
 
 F = res.F
