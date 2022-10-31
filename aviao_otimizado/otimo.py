@@ -27,10 +27,10 @@ from aux_tools_doe import corrdot
 def des_funcs(Xinp):
     
     airplane = dt.standard_airplane("F70_XerifeEdition")
-    Range, AR_w, S_w = Xinp
+    Range = Xinp
     airplane['range_cruise'] = Range
-    airplane['AR_w'] = AR_w
-    airplane['S_w'] = S_w
+    #airplane['AR_w'] = AR_w
+    #airplane['S_w'] = S_w
     result = dt.analyze(
         airplane=airplane,
         print_log=False,  # Plot results on the terminal screen
@@ -39,19 +39,25 @@ def des_funcs(Xinp):
 
     W0 = result['W0']/9.81
     W_fuel = result['Wf']/9.81
+    #W_empty = result['We']/9.81
+    deltaS_wlan = result['deltaS_wlan']
+    T0_W0 = result['T0']/result['W0']
+    W0_S = result['W0']/result['S_w']
+    
+    
 
     # Returns
-    return W0, W_fuel
+    return W0, W_fuel, deltaS_wlan, T0_W0, W0_S
 
 # Give number of input variables
-n_var = 3
+n_var = 1
 
 # Lower and upeer bounds of each input variable
-lb = [1000, 5, 30]
-ub = [6000, 12, 150]
+lb = [3000]
+ub = [6000]
 
 # Desired number of samples
-n_samples = 2000
+n_samples = 100
 
 # Sampling type
 #sampler = FloatRandomSampling()
@@ -80,24 +86,33 @@ X = sampler(problem, n_samples).get("X")
 # Execute all cases and store outputs
 y1_samples = np.zeros(n_samples)
 y2_samples = np.zeros(n_samples)
+y3_samples = np.zeros(n_samples)
+y4_samples = np.zeros(n_samples)
+y5_samples = np.zeros(n_samples)
 for ii in range(n_samples):
 
     # Evaluate sample
-    (y1,y2) = des_funcs(X[ii,:])
+    (y1,y2,y3,y4,y5) = des_funcs(X[ii,:])
 
     # Store the relevant information
     y1_samples[ii] = y1
     y2_samples[ii] = y2
+    y3_samples[ii] = y3
+    y4_samples[ii] = y4
+    y5_samples[ii] = y5
 
 # Create a pandas dataframe with all the information
 df = pd.DataFrame({'Range' : X[:,0],
-                   'AR_w' : X[:,1],
-                   'S_w' : X[:,2],
+                   #'AR_w' : X[:,0],
+                   #'S_w' : X[:,1],
                    'W0' : y1_samples,
-                   'W_fuel' : y2_samples})
+                   'W_fuel' : y2_samples,
+                   'deltaS_wlan' : y3_samples,
+                   'T0 / W0' : y4_samples,
+                   'W0 / Sw' : y5_samples})
 
 # Plot the correlation matrix
-sns.set(style='white', font_scale=1.4)
+sns.set(style='white', font_scale=1.1)
 
 if plot_type == 0:
 
