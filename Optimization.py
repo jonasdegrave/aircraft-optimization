@@ -59,18 +59,31 @@ class MyProblem(ElementwiseProblem):
         
         f1 = - airplane["range_cruise"]
         
-        g1 =    airplane["W0"]  - 39000*9.81
+        # g1 =    airplane["W0"]  - 39000*9.81
+        # g2 = -  airplane["deltaS_wlan"]
+        # g3 =    airplane["SM_fwd"] - 0.3
+        # g4 = - (airplane["SM_aft"] - 0.05)
+        # g5 =    airplane["frac_nlg_fwd"] - 0.18
+        # g6 = - (airplane["frac_nlg_aft"] - 0.05)
+        # g7 = - (airplane["alpha_tipback"] * (180.0 / np.pi) - 15)
+        # g8 = - (airplane["alpha_tailstrike"]  * (180.0 / np.pi) - 10)
+        # g9 =   (airplane["phi_overturn"] * (180.0 / np.pi) - 63)
+        # g10 =   airplane["b_tank_b_w"] - 0.95
+        # g11 =   airplane["b_w"] - 36
+        # g12 =   airplane["CLv"] - 0.75
+        
+        g1 =    (airplane["W0"]/(39000*9.81))  - 1
         g2 = -  airplane["deltaS_wlan"]
-        g3 =    airplane["SM_fwd"] - 0.3
-        g4 = - (airplane["SM_aft"] - 0.05)
-        g5 =    airplane["frac_nlg_fwd"] - 0.18
-        g6 = - (airplane["frac_nlg_aft"] - 0.05)
-        g7 = - (airplane["alpha_tipback"] * (180.0 / np.pi) - 15)
-        g8 = - (airplane["alpha_tailstrike"]  * (180.0 / np.pi) - 10)
-        g9 =   (airplane["phi_overturn"] * (180.0 / np.pi) - 63)
-        g10 =   airplane["b_tank_b_w"] - 0.95
-        g11 =   airplane["b_w"] - 36
-        g12 =   airplane["CLv"] - 0.75
+        g3 =    airplane["SM_fwd"]/0.3 - 1
+        g4 = - (airplane["SM_aft"]/0.05 - 1)
+        g5 =    airplane["frac_nlg_fwd"]/0.18 - 1
+        g6 = - (airplane["frac_nlg_aft"]/0.05 - 1)
+        g7 = - ((airplane["alpha_tipback"] * (180.0 / np.pi)/15) - 1)
+        g8 = - ((airplane["alpha_tailstrike"]  * (180.0 / np.pi)/10) - 1)
+        g9 =   ((airplane["phi_overturn"] * (180.0 / np.pi)/63) - 1)
+        g10 =   airplane["b_tank_b_w"]/0.95 - 1
+        g11 =   airplane["b_w"]/36 - 1
+        g12 =   airplane["CLv"]/0.75 - 1
         
         out["F"] = [f1]
         out["G"] = [g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11, g12]
