@@ -19,23 +19,36 @@ class MyProblem(ElementwiseProblem):
         self.airplane = dt.standard_airplane("F70_XerifeEdition")
         
         Sweep_Lower = ( 16.5 * np.pi / 180 ) * 0.4
-        Sweep_Upper = ( 16.5 * np.pi / 180 ) * 1.6
-        Dihedral_Lower = ( 3.3 * np.pi / 180 ) * 0.4
-        Dihedral_Upper = ( 3.3 * np.pi / 180 ) * 1.6
-        Range_Lower = ( 4700 * 10**3 ) * 0.4
-        Range_Upper = 10000 * 10**3
+        Sweep_Upper = 35 * np.pi / 180
+        # Dihedral_Lower = ( 3.3 * np.pi / 180 ) * 0.4
+        # Dihedral_Upper = ( 3.3 * np.pi / 180 ) * 1.6
+        MachCruise_Lower = 0.75
+        MachCruise_Upper = 0.85
+        AR_Lower = 6
+        AR_Upper = 11
+        SW_Lower = 60
+        SW_Upper = 130
+        Range_Lower = 4500000
+        Range_Upper = 5500000
+        AltCruise_Lower = 10000 
+        AltCruise_Upper = 12000
+
         
-        super().__init__(n_var=3,
+        super().__init__(n_var=6,
                          n_obj=1,
                          n_ieq_constr=12,
-                         xl=np.array([ Sweep_Lower, Dihedral_Lower, Range_Lower ]),
-                         xu=np.array([ Sweep_Upper, Dihedral_Upper, Range_Upper ]))
+                         xl=np.array([ Sweep_Lower, MachCruise_Lower, AR_Lower, SW_Lower, Range_Lower, AltCruise_Lower ]),
+                         xu=np.array([ Sweep_Upper, MachCruise_Upper, AR_Upper, SW_Upper, Range_Upper, AltCruise_Upper ]))
 
     def _evaluate(self, x, out, *args, **kwargs):
         
         self.airplane["sweep_w"] = x[0]
-        self.airplane["dihedral_w"] = x[1]
-        self.airplane["range_cruise"] = x[2]
+        self.airplane["Mach_cruise"] = x[1]
+        # self.airplane["dihedral_w"] = x[1]
+        self.airplane["AR_w"] = x[2]
+        self.airplane["S_w"] = x[3]
+        self.airplane["range_cruise"] = x[4]
+        self.airplane["altitude_cruise"] = x[5]
         
         airplane = dt.analyze(
             airplane=self.airplane,
@@ -67,7 +80,7 @@ problem = MyProblem()
 
 algorithm = NSGA2(
     pop_size=200,
-    n_offsprings=100,
+    n_offsprings=50,
     sampling=FloatRandomSampling(),
     crossover=SBX(prob=0.9, eta=15),
     mutation=PM(eta=20),
@@ -79,7 +92,7 @@ termination = get_termination("n_gen", 100)
 res = minimize(problem,
                algorithm,
                termination,
-               seed=1,
+               seed=3,
                save_history=True,
                verbose=True)
 
