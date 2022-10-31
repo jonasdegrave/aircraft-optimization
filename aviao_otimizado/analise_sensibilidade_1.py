@@ -37,17 +37,17 @@ def des_funcs(Xinp):
         plot=False,  # Generate 3D plot of the aircraft
     )
 
-    W0 = result['W0']/9.81
-    W_fuel = result['Wf']/9.81
-    #W_empty = result['We']/9.81
-    deltaS_wlan = result['deltaS_wlan']
+    Wf_W0 = result['Wf']/result['W0']
+    We_W0 = result['We']/result['W0']
     T0_W0 = result['T0']/result['W0']
     W0_S = result['W0']/result['S_w']
+    SM_fwd = result["SM_fwd"]
+    SM_aft = result["SM_aft"]
     
     
 
     # Returns
-    return W0, W_fuel, deltaS_wlan, T0_W0, W0_S
+    return Wf_W0, We_W0, T0_W0, W0_S, SM_fwd, SM_aft
 
 # Give number of input variables
 n_var = 1
@@ -89,10 +89,11 @@ y2_samples = np.zeros(n_samples)
 y3_samples = np.zeros(n_samples)
 y4_samples = np.zeros(n_samples)
 y5_samples = np.zeros(n_samples)
+y6_samples = np.zeros(n_samples)
 for ii in range(n_samples):
 
     # Evaluate sample
-    (y1,y2,y3,y4,y5) = des_funcs(X[ii,:])
+    (y1,y2,y3,y4,y5,y6) = des_funcs(X[ii,:])
 
     # Store the relevant information
     y1_samples[ii] = y1
@@ -100,16 +101,18 @@ for ii in range(n_samples):
     y3_samples[ii] = y3
     y4_samples[ii] = y4
     y5_samples[ii] = y5
+    y6_samples[ii] = y6
 
 # Create a pandas dataframe with all the information
 df = pd.DataFrame({'Range' : X[:,0],
                    #'AR_w' : X[:,0],
                    #'S_w' : X[:,1],
-                   'W0' : y1_samples,
-                   'W_fuel' : y2_samples,
-                   'deltaS_wlan' : y3_samples,
-                   'T0 / W0' : y4_samples,
-                   'W0 / Sw' : y5_samples})
+                   'Wf_W0' : y1_samples,
+                   'We_W0' : y2_samples,
+                   'T0 / W0' : y3_samples,
+                   'W0 / Sw' : y4_samples,
+                   'SM_fwd' : y5_samples,
+                   'SM_aft' : y6_samples})
 
 # Plot the correlation matrix
 sns.set(style='white', font_scale=1.1)
