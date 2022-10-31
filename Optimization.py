@@ -44,7 +44,7 @@ class MyProblem(ElementwiseProblem):
         )
         
         
-        f1 = -airplane["range_cruise"]
+        f1 = - airplane["range_cruise"]
         
         g1 =    airplane["W0"]  - 39000*9.81
         g2 = -  airplane["deltaS_wlan"]
@@ -66,15 +66,15 @@ class MyProblem(ElementwiseProblem):
 problem = MyProblem()
 
 algorithm = NSGA2(
-    pop_size=40,
-    #n_offsprings=10,
-    #sampling=FloatRandomSampling(),
-    #crossover=SBX(prob=0.9, eta=15),
-    #mutation=PM(eta=20),
-    #eliminate_duplicates=True
+    pop_size=200,
+    n_offsprings=100,
+    sampling=FloatRandomSampling(),
+    crossover=SBX(prob=0.9, eta=15),
+    mutation=PM(eta=20),
+    eliminate_duplicates=True
 )
 
-termination = get_termination("n_gen", 40)
+termination = get_termination("n_gen", 100)
 
 res = minimize(problem,
                algorithm,
