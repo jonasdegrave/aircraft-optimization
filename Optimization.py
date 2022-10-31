@@ -23,7 +23,7 @@ class MyProblem(ElementwiseProblem):
         Dihedral_Lower = ( 3.3 * np.pi / 180 ) * 0.4
         Dihedral_Upper = ( 3.3 * np.pi / 180 ) * 1.6
         Range_Lower = ( 4700 * 10**3 ) * 0.4
-        Range_Upper = ( 4700 * 10**3 ) * 1.6
+        Range_Upper = 10000 * 10**3
         
         super().__init__(n_var=3,
                          n_obj=1,
@@ -33,9 +33,9 @@ class MyProblem(ElementwiseProblem):
 
     def _evaluate(self, x, out, *args, **kwargs):
         
-        self.airplane["range_cruise"] = x[0]
+        self.airplane["sweep_w"] = x[0]
         self.airplane["dihedral_w"] = x[1]
-        self.airplane["sweep_w"] = x[2]
+        self.airplane["range_cruise"] = x[2]
         
         airplane = dt.analyze(
             airplane=self.airplane,
@@ -44,7 +44,7 @@ class MyProblem(ElementwiseProblem):
         )
         
         
-        f1 = airplane["range_cruise"]
+        f1 = - airplane["range_cruise"]
         
         g1 =    airplane["W0"]  - 39000*9.81
         g2 = -  airplane["deltaS_wlan"]
@@ -66,15 +66,15 @@ class MyProblem(ElementwiseProblem):
 problem = MyProblem()
 
 algorithm = NSGA2(
-    pop_size=40,
-    n_offsprings=10,
+    pop_size=200,
+    n_offsprings=100,
     sampling=FloatRandomSampling(),
     crossover=SBX(prob=0.9, eta=15),
     mutation=PM(eta=20),
     eliminate_duplicates=True
 )
 
-termination = get_termination("n_gen", 40)
+termination = get_termination("n_gen", 100)
 
 res = minimize(problem,
                algorithm,
