@@ -173,8 +173,27 @@ def geometry(airplane):
     xr_v = xm_v - (zm_v - zr_v) * np.tan(sweep_v) + (cm_v - cr_v) / 4
     zt_v = zr_v + b_v
     xt_v = xr_v + (zt_v - zr_v) * np.tan(sweep_v) + (cr_v - ct_v) / 4
+    
+    
+    # HORIZONTAL TAIL
+    
+    zr_h = zt_v - 0.1
+    L_h = Lc_h * cm_w
+    S_h = (S_w * cm_w / L_h) * Cht
+    b_h = np.sqrt(AR_h * S_h)
+    cr_h = (2 * S_h) / (b_h * (1 + taper_h))
+    ct_h = taper_h * cr_h
+    cm_h = (2 * cr_h / 3) * (1 + taper_h + taper_h**2) / (1 + taper_h)
+    xm_h = xm_w + L_h + (cm_w - cm_h) / 4
+    ym_h = (b_h / 6) * (1 + 2 * taper_h) / (1 + taper_h)
+    zm_h = zr_h + ym_h * np.tan(dihedral_h)
+    xr_h = xm_h - ym_h * np.tan(sweep_h) + (cm_h - cr_h) / 4
+    yt_h = b_h / 2
+    xt_h = xr_h + yt_h * np.tan(sweep_h) + (cr_h - ct_h) / 4
+    zt_h = zr_h + yt_h * np.tan(dihedral_h)
 
     # Update dictionary with new results
+    airplane["zr_h"] = zr_h
     airplane["b_w"] = b_w
     airplane["cr_w"] = cr_w
     airplane["xt_w"] = xt_w
