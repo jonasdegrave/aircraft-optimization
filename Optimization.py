@@ -223,11 +223,14 @@ class MyCallback(Callback):
         super().__init__()
         self.n_evals = []
         self.opt = []
-
+        self.G = []
+        self.X = []
+        
     def notify(self, algorithm):
         self.n_evals.append(algorithm.evaluator.n_eval)
         self.opt.append(algorithm.opt[0].F)
-        self.G0.append(algorithm.opt[0].G)
+        self.G.append(algorithm.opt[0].G)
+        self.X.append(algorithm.opt[0].X)
 callback = MyCallback()
 
 ########------------------ DEFININDO O ALGORITMO USADO -----------------#######
@@ -239,7 +242,7 @@ callback = MyCallback()
 
 algorithm = NSGA2(
     pop_size=300,
-    n_offsprings=10,
+    n_offsprings=100,
     sampling=FloatRandomSampling(),
     crossover=SBX(prob=0.9, eta=15),
     mutation=PM(eta=20),
@@ -254,7 +257,7 @@ algorithm = NSGA2(
 #  Avaliação do critério de parada a cada: 100 gerações.
 
 termination = DefaultSingleObjectiveTermination(
-    xtol=1e-5, ftol=50, period=100, n_max_gen=100, n_max_evals=100000
+    xtol=1e-5, ftol=50, period=100, n_max_gen=2000, n_max_evals=100000
 )
 
 ########-------------------- ATIVANDO O OTIMIZADOR ---------------------#######
@@ -281,7 +284,7 @@ plt.title("Convergence")
 plt.plot(n_evals, -opt, "--")
 plt.xlabel("Function calls")
 plt.ylabel("Range [m]")
-plt.show()
+
 
 ##### Inicializando os limites superiores e inferiores das variáveis para rea-
 #####lizar posterior retorno dos valores normalizados para o domínio original.
