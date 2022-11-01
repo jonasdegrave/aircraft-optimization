@@ -24,6 +24,9 @@ from pymoo.optimize import minimize
 # DesignTools
 import designTool as dt
 
+# Callback
+from pymoo.core.callback import Callback
+
 # Matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -213,6 +216,20 @@ class MyProblem(ElementwiseProblem):
 ####### O problema está agora definido.
 problem = MyProblem()
 
+########--------------------- DEFININDO O CALLBACK ---------------------#######
+class MyCallback(Callback):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.n_evals = []
+        self.opt = []
+
+    def notify(self, algorithm):
+        self.n_evals.append(algorithm.evaluator.n_eval)
+        self.opt.append(algorithm.opt[0].F)
+        self.G0.append(algorithm.opt[0].G)
+callback = MyCallback()
+
 ########------------------ DEFININDO O ALGORITMO USADO -----------------#######
 # Tamanho da população inicial: 300;
 # Quantidade de filhos por geração: 100;
@@ -222,7 +239,7 @@ problem = MyProblem()
 
 algorithm = NSGA2(
     pop_size=300,
-    n_offsprings=100,
+    n_offsprings=10,
     sampling=FloatRandomSampling(),
     crossover=SBX(prob=0.9, eta=15),
     mutation=PM(eta=20),
@@ -237,14 +254,14 @@ algorithm = NSGA2(
 #  Avaliação do critério de parada a cada: 100 gerações.
 
 termination = DefaultSingleObjectiveTermination(
-    xtol=1e-5, ftol=50, period=100, n_max_gen=2000, n_max_evals=100000
+    xtol=1e-5, ftol=50, period=100, n_max_gen=100, n_max_evals=100000
 )
 
 ########-------------------- ATIVANDO O OTIMIZADOR ---------------------#######
 ####### Compilando o otimizador com a definição do problema, algoritmo e
 #######critério de parada.
 
-res = minimize(problem, algorithm,  termination, seed=3, save_history=True, verbose=True)
+res = minimize(problem, algorithm, termination, seed=3, callback = callback, save_history=True, verbose=True)
 
 ###############################################################################
 ########################### AVALIANDO OS RESULTADOS ###########################
@@ -341,12 +358,6 @@ airplane = dt.analyze(
     print_log=False,  # Plot results on the terminal screen
     plot=True,  # Generate 3D plot of the aircraft
 )
-pf_a, pf_b = problem.pareto_front(use_cache=False, flatten=False
-pf = problem.pareto_front(use_cache=False, flatten=True)
-plt.figure(figsize=(7, 5))
-plt.scatter(F[:, 0], F[:, 1], s=30, facecolors='none', edgecolors='b', label="Solutions")
-plt.plot(pf_a[:, 0], pf_a[:, 1], alpha=0.5, linewidth=2.0, color="red", label="Pareto-front")
-plt.plot(pf_b[:, 0], pf_b[:, 1], alpha=0.5, linewidth=2.0, color="red")
-plt.title("Objective Space")
-plt.legend()
-plt.show()
+
+# fig = plt.figure()
+# plt.plot(re)
