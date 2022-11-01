@@ -83,8 +83,8 @@ class MyProblem(ElementwiseProblem):
         Sweep_Upper = 35 * np.pi / 180
 
         # Mach de cruzeiro
-        MachCruise_Lower = 0.77
-        MachCruise_Upper = 0.85
+        MachCruise_Lower = 0.75
+        MachCruise_Upper = 0.80
 
         # Alongamento
         AR_Lower = 6
@@ -251,8 +251,8 @@ plt.show()
 Sweep_Lower = 6.6 * np.pi / 180
 Sweep_Upper = 35 * np.pi / 180
 
-MachCruise_Lower = 0.77
-MachCruise_Upper = 0.85
+MachCruise_Lower = 0.75
+MachCruise_Upper = 0.80
 
 AR_Lower = 6
 AR_Upper = 11
