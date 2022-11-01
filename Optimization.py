@@ -26,6 +26,7 @@ import designTool as dt
 
 # Matplotlib
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 ###############################################################################
 ############################## FUNÇÕES PRÓPRIAS ###############################
@@ -145,7 +146,11 @@ class MyProblem(ElementwiseProblem):
         self.airplane["range_cruise"] = x[4]
         self.airplane["altitude_cruise"] = x[5]
         self.airplane["xr_w"] = x[6]
+        
+        # Apesar da posição do trem de pouso não ser uma variável, ela está
+        #atrelada á posição da asa.
         self.airplane["x_mlg"] = x[6] + 4.28
+        
         self.airplane["Cht"] = x[7]
         self.airplane["Lc_h"] = x[8]
         self.airplane["Cvt"] = x[9]
@@ -208,46 +213,61 @@ class MyProblem(ElementwiseProblem):
 ####### O problema está agora definido.
 problem = MyProblem()
 
-####### Definindo o algoritmo genético utilizado e os seus parâmetros:
-# Tamanho da população inicial: 200;
-# Quantidade de filhos por geração: 80;
+########------------------ DEFININDO O ALGORITMO USADO -----------------#######
+# Tamanho da população inicial: 300;
+# Quantidade de filhos por geração: 100;
 # Possibilidade de crossover com 90% de chance de ocorrência;
 # Possibilidade de mutação;
 # Eliminação de dados duplicados.
 
 algorithm = NSGA2(
-    pop_size=200,
-    n_offsprings=80,
+    pop_size=300,
+    n_offsprings=100,
     sampling=FloatRandomSampling(),
     crossover=SBX(prob=0.9, eta=15),
     mutation=PM(eta=20),
     eliminate_duplicates=True,
 )
 
-####### Definindo o critério de parada.
-#  Critério: parada na geração 200.
+########---------------- DEFININDO O CRITÉRIO DE PARADA ----------------#######
+#  Parada por geração: 2000. 
+#  Parada por alteração nas variáveis: 0.00001.
+#  Parada por alteração no objetivo: 50.
+#  Parada por população máxima: 100000.
+#  Avaliação do critério de parada a cada: 100 gerações.
 
 termination = DefaultSingleObjectiveTermination(
     xtol=1e-5, ftol=50, period=100, n_max_gen=2000, n_max_evals=100000
 )
+
+########-------------------- ATIVANDO O OTIMIZADOR ---------------------#######
 ####### Compilando o otimizador com a definição do problema, algoritmo e
 #######critério de parada.
 
-res = minimize(problem, algorithm, termination, seed=3, save_history=True, verbose=True)
+res = minimize(problem, algorithm,  termination, seed=3, save_history=True, verbose=True)
 
+###############################################################################
+########################### AVALIANDO OS RESULTADOS ###########################
+###############################################################################
+
+# Variáveis no momento da parada.
 X = res.X
 
-
+# Função objetivo (alcance) no momento da parada.
 F = res.F
 
+##### Realizando o plot de histórico da convergência.
 n_evals = np.array([e.evaluator.n_eval for e in res.history])
 opt = np.array([e.opt[0].F for e in res.history])
 
 plt.title("Convergence")
 plt.plot(n_evals, -opt, "--")
+plt.xlabel("Function calls")
+plt.ylabel("Range [m]")
 plt.show()
 
-
+##### Inicializando os limites superiores e inferiores das variáveis para rea-
+#####lizar posterior retorno dos valores normalizados para o domínio original.
 Sweep_Lower = 6.6 * np.pi / 180
 Sweep_Upper = 35 * np.pi / 180
 
@@ -281,6 +301,8 @@ Cvt_Upper = 0.12
 Lbv_Lower = 0.42 * 0.9
 Lbv_Upper = 0.42 * 1.1
 
+######### Observando os valores das variáveis no critério de parada, no domínio
+#########original dos valores.
 Sweep = (Denormalize(X[0], Sweep_Lower, Sweep_Upper)) * (180 / np.pi)
 MachCruise = Denormalize(X[1], MachCruise_Lower, MachCruise_Upper)
 AR_w = Denormalize(X[2], AR_Lower, AR_Upper)
@@ -293,3 +315,38 @@ Lch = Denormalize(X[8], Lch_Lower, Lch_Upper)
 Cvt = Denormalize(X[9], Cvt_Lower, Cvt_Upper)
 Lbv = Denormalize(X[10], Lbv_Lower, Lbv_Upper)
 T0 = 130000 + res.G[12] * 130000
+
+
+##### Chamdando o dicionário novamente para faze o plot da aeronave com valo-
+#####res atualizados.
+airplane = dt.standard_airplane("F70_XerifeEdition")
+
+airplane["sweep_w"] = Sweep * (np.pi / 180)
+airplane["Mach_cruise"] = MachCruise
+airplane["AR_w"] = AR_w
+airplane["S_w"] = S_w
+airplane["range_cruise"] = Range
+airplane["altitude_cruise"] = AltCruise
+airplane["xr_w"] = xr_w
+
+airplane["x_mlg"] = xr_w + 4.28
+
+airplane["Cht"] = Cht
+airplane["Lc_h"] = Lch
+airplane["Cvt"] = Cvt
+airplane["Lb_v"] = Lbv
+        
+airplane = dt.analyze(
+    airplane=airplane,
+    print_log=False,  # Plot results on the terminal screen
+    plot=True,  # Generate 3D plot of the aircraft
+)
+pf_a, pf_b = problem.pareto_front(use_cache=False, flatten=False
+pf = problem.pareto_front(use_cache=False, flatten=True)
+plt.figure(figsize=(7, 5))
+plt.scatter(F[:, 0], F[:, 1], s=30, facecolors='none', edgecolors='b', label="Solutions")
+plt.plot(pf_a[:, 0], pf_a[:, 1], alpha=0.5, linewidth=2.0, color="red", label="Pareto-front")
+plt.plot(pf_b[:, 0], pf_b[:, 1], alpha=0.5, linewidth=2.0, color="red")
+plt.title("Objective Space")
+plt.legend()
+plt.show()

@@ -3452,7 +3452,7 @@ def standard_airplane(name="fokker100"):
             # "W0_guess": 36740 * gravity,  # Guess for MTOW
         }
 
-    elif name == "F70_XerifeEdition_2":
+    elif name == "F70_XerifeEdition_Optimized":
         # COMENTÁRIOS
 
         # PROCESSO DE OTIMIZAÇÃO/AJUSTE
