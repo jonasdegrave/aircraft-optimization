@@ -242,7 +242,7 @@ callback = MyCallback()
 
 algorithm = NSGA2(
     pop_size=300,
-    n_offsprings=100,
+    n_offsprings=50,
     sampling=FloatRandomSampling(),
     crossover=SBX(prob=0.9, eta=15),
     mutation=PM(eta=20),
@@ -257,7 +257,7 @@ algorithm = NSGA2(
 #  Avaliação do critério de parada a cada: 100 gerações.
 
 termination = DefaultSingleObjectiveTermination(
-    xtol=1e-5, ftol=50, period=100, n_max_gen=2000, n_max_evals=100000
+    xtol=1e-5, ftol=50, period=100, n_max_gen=800, n_max_evals=100000
 )
 
 ########-------------------- ATIVANDO O OTIMIZADOR ---------------------#######
@@ -358,9 +358,11 @@ airplane["Lb_v"] = Lbv
         
 airplane = dt.analyze(
     airplane=airplane,
-    print_log=False,  # Plot results on the terminal screen
+    print_log=True,  # Plot results on the terminal screen
     plot=True,  # Generate 3D plot of the aircraft
 )
+
+# Execution_Time = res.exec_time()
 
 # fig = plt.figure()
 # plt.plot(re)

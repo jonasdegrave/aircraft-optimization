@@ -13,7 +13,7 @@ gamma_air = 1.4
 R_air = 287
 
 # Load the standard airplane
-airplane = dt.standard_airplane("F70_XerifeEdition")
+airplane = dt.standard_airplane("F70_XerifeEdition_Optimized")
 
 # dt.geometry(airplane)
 # Modify one parameter (if necessary)

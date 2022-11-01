@@ -3476,7 +3476,7 @@ def standard_airplane(name="fokker100"):
             "S_w": 90.98082453361354,  # Wing area [m2]
             "AR_w": 8.341826790683632,  # Wing aspect ratio
             "taper_w": 0.28,  # Wing taper ratio
-            "sweep_w": 16.5 * np.pi / 180,  # Wing sweep [rad]
+            "sweep_w": 18.621587491997442 * np.pi / 180,  # Wing sweep [rad]
             "dihedral_w": 3.3 * np.pi / 180,  # Wing dihedral [rad]
             "xr_w": 12.565590245059521,  # Longitudinal position of the wing (with respect to the fuselage nose) [m]
             "zr_w": -1.01,  # Vertical position of the wing (with respect to the fuselage nose) [m]
@@ -3496,7 +3496,7 @@ def standard_airplane(name="fokker100"):
             "Lb_v": 0.43324985683964373,  # Non-dimensional lever of the vertical tail (lever/wing_span)
             "AR_v": 1.314,  # VT aspect ratio
             "taper_v": 0.754,  # VT taper ratio
-            "sweep_v": 18.621587491997442 * np.pi / 180,  # VT sweep [rad]
+            "sweep_v": 35.57 * np.pi / 180,  # VT sweep [rad]
             "zr_v": 3.24 / 2,  # Vertical position of the VT [m]
             "tcr_v": 0.1,  # t/c of the root section of the VT
             "tct_v": 0.1,  # t/c of the tip section of the VT
@@ -3541,11 +3541,11 @@ def standard_airplane(name="fokker100"):
             "distance_landing": 1600,  # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
             "MLW_frac": 34400
             / 37527,  # Max Landing Weight / Max Takeoff Weight NAO SEI
-            "altitude_cruise": 11800,  # Cruise altitude [m]
+            "altitude_cruise": 12341.016673282771,  # Cruise altitude [m]
             "Mach_cruise": 0.7500525021972817,  # Cruise Mach number
             "range_cruise": 5154614.649600215,  # Cruise range [m]
             "loiter_time": 45 * 60,  # Loiter time [s]
-            "altitude_altcruise": 12341.016673282771,  # Alternative cruise altitude [m]
+            "altitude_altcruise": 4572,  # Alternative cruise altitude [m]
             "Mach_altcruise": 0.4,  # Alternative cruise Mach number
             "range_altcruise": 200 * nm2m,  # Alternative cruise range [m]
             "W_payload": (76 * 97.0688 + 460) * gravity,  # Payload weight [N]
