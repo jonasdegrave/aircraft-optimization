@@ -22,7 +22,7 @@ airplane = {
     # "Lc_h": 1.017,
     # "MLW_frac": 0.9228915662650602,
     # "Mach_altcruise": 0.4,
-    # "Mach_cruise": 0.79, 
+    # "Mach_cruise": 0.79,
     # "S_w": 78.94,
     # "W_crew": 4463.55, NÃO SEI O QUE É
     # "W_payload": 95519.97, NÃO SEI O QUE É

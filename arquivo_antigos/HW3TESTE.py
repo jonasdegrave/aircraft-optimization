@@ -172,7 +172,7 @@ plt.plot(CD_Landing, CL_List[2], "--", label="Class 1: Landing")
 
 plt.legend()
 
-#plt.show()
+# plt.show()
 
 
 ############################ End Plotting ############################
@@ -184,7 +184,7 @@ plt.legend()
 
 ###---------------------- Exercício 7 ----------------------###
 
-#print("RODOU ATÉ AQUI???")
+# print("RODOU ATÉ AQUI???")
 airplane = dt.standard_airplane("AviaoDoXerife")
 dt.geometry(airplane)
 

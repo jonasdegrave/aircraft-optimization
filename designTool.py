@@ -3350,24 +3350,23 @@ def standard_airplane(name="fokker100"):
 
     elif name == "F70_XerifeEdition":
         # COMENTÁRIOS
-        
+
         # PROCESSO DE OTIMIZAÇÃO/AJUSTE
-            # Como a planilha "PrestoCabin" utiliza os valores estimados para o alcance e o MTOW
-            # da aeronave, é necessário fazer um processo iterativo com o código/análises
-            
+        # Como a planilha "PrestoCabin" utiliza os valores estimados para o alcance e o MTOW
+        # da aeronave, é necessário fazer um processo iterativo com o código/análises
+
         # COMENTÁRRIOS SOBRE COMO VALORES DE PARÂMETROS SÃO AJUSTADOS
-            # Na planilha "PrestoCabin", os valores atuais de MTOW e de alcance são de 36000 kg e 3900 km
-            # xcg_payload <- adaptação do valor do Fokker 100 para o nosso comprimento de fuselagem
-            # L_f (Fuselage length [m]) <- Valor retirado da planilha PrestoCabin (ln 372)
-            # D_f (Fuselage diameter [m]) <- Valor retirado da planilha PrestoCabin (ln 136)
-            
+        # Na planilha "PrestoCabin", os valores atuais de MTOW e de alcance são de 36000 kg e 3900 km
+        # xcg_payload <- adaptação do valor do Fokker 100 para o nosso comprimento de fuselagem
+        # L_f (Fuselage length [m]) <- Valor retirado da planilha PrestoCabin (ln 372)
+        # D_f (Fuselage diameter [m]) <- Valor retirado da planilha PrestoCabin (ln 136)
+
         # ITENS QUE PRECISAM SER CORRIGIDOS OU APRIMORADOS
-            # O comprimento da fuselagem diminuiu em comparação com o F70 original (2,53 m a menos). 
-            # Por conta disso, algumas medidas e posicionamentos longitudinais precisam ser modificados
-            # (posição da asa, posição das empenagens, posição do motor, posição do trem de pouso 
-            # principal, comprimento da nacelle do motor)
-            
-        
+        # O comprimento da fuselagem diminuiu em comparação com o F70 original (2,53 m a menos).
+        # Por conta disso, algumas medidas e posicionamentos longitudinais precisam ser modificados
+        # (posição da asa, posição das empenagens, posição do motor, posição do trem de pouso
+        # principal, comprimento da nacelle do motor)
+
         airplane = {
             "type": "transport",  # Can be 'transport', 'fighter', or 'general'
             "S_w": 92,  # Wing area [m2]
@@ -3394,7 +3393,7 @@ def standard_airplane(name="fokker100"):
             "AR_v": 1.314,  # VT aspect ratio
             "taper_v": 0.754,  # VT taper ratio
             "sweep_v": 35.57 * np.pi / 180,  # VT sweep [rad]
-            "zr_v": 3.24/2,  # Vertical position of the VT [m]
+            "zr_v": 3.24 / 2,  # Vertical position of the VT [m]
             "tcr_v": 0.1,  # t/c of the root section of the VT
             "tct_v": 0.1,  # t/c of the tip section of the VT
             "L_f": 29.27,  # Fuselage length [m] <- Otimizado de acordo com a planilha PrestoCabin (ln 372)
@@ -3409,9 +3408,9 @@ def standard_airplane(name="fokker100"):
             "engine": {
                 "model": "Howe turbofan",  # Check engineTSFC function for options
                 "BPR": 4.9,  # Engine bypass ratio
-                "Cbase": 0.39/ 3600,
-                "weight": 1120*gravity
-            }, # Motor CF34-C5
+                "Cbase": 0.39 / 3600,
+                "weight": 1120 * gravity,
+            },  # Motor CF34-C5
             "x_nlg": 3.64,  # Longitudinal position of the nose landing gear [m]
             "x_mlg": 17.10,  # Longitudinal position of the main landing gear [m]
             "y_mlg": 2.52,  # Lateral position of the main landing gear [m]
@@ -3435,8 +3434,9 @@ def standard_airplane(name="fokker100"):
             "altitude_takeoff": 0.0,  # Altitude for takeoff computation [m]
             "distance_takeoff": 1600,  # Required takeoff distance [m]
             "altitude_landing": 0.0,  # Altitude for landing computation [m]
-            "distance_landing": 1600, # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
-            "MLW_frac": 34400/37527,  # Max Landing Weight / Max Takeoff Weight NAO SEI
+            "distance_landing": 1600,  # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
+            "MLW_frac": 34400
+            / 37527,  # Max Landing Weight / Max Takeoff Weight NAO SEI
             "altitude_cruise": 11800,  # Cruise altitude [m]
             "Mach_cruise": 0.76,  # Cruise Mach number
             "range_cruise": 4700 * 10**3,  # Cruise range [m]
@@ -3449,29 +3449,28 @@ def standard_airplane(name="fokker100"):
             "W_crew": 4 * 91 * gravity,  # Crew weight [N]
             "xcg_crew": 2.5,  # Longitudinal position of the Crew center of gravity [m]
             "rho_f": 804,  # Fuel density kg/m3 (This is Jet A-1)
-            #"W0_guess": 36740 * gravity,  # Guess for MTOW
-        }        
-    
+            # "W0_guess": 36740 * gravity,  # Guess for MTOW
+        }
+
     elif name == "F70_XerifeEdition_2":
         # COMENTÁRIOS
-        
+
         # PROCESSO DE OTIMIZAÇÃO/AJUSTE
-            # Como a planilha "PrestoCabin" utiliza os valores estimados para o alcance e o MTOW
-            # da aeronave, é necessário fazer um processo iterativo com o código/análises
-            
+        # Como a planilha "PrestoCabin" utiliza os valores estimados para o alcance e o MTOW
+        # da aeronave, é necessário fazer um processo iterativo com o código/análises
+
         # COMENTÁRRIOS SOBRE COMO VALORES DE PARÂMETROS SÃO AJUSTADOS
-            # Na planilha "PrestoCabin", os valores atuais de MTOW e de alcance são de 36000 kg e 3900 km
-            # xcg_payload <- adaptação do valor do Fokker 100 para o nosso comprimento de fuselagem
-            # L_f (Fuselage length [m]) <- Valor retirado da planilha PrestoCabin (ln 372)
-            # D_f (Fuselage diameter [m]) <- Valor retirado da planilha PrestoCabin (ln 136)
-            
+        # Na planilha "PrestoCabin", os valores atuais de MTOW e de alcance são de 36000 kg e 3900 km
+        # xcg_payload <- adaptação do valor do Fokker 100 para o nosso comprimento de fuselagem
+        # L_f (Fuselage length [m]) <- Valor retirado da planilha PrestoCabin (ln 372)
+        # D_f (Fuselage diameter [m]) <- Valor retirado da planilha PrestoCabin (ln 136)
+
         # ITENS QUE PRECISAM SER CORRIGIDOS OU APRIMORADOS
-            # O comprimento da fuselagem diminuiu em comparação com o F70 original (2,53 m a menos). 
-            # Por conta disso, algumas medidas e posicionamentos longitudinais precisam ser modificados
-            # (posição da asa, posição das empenagens, posição do motor, posição do trem de pouso 
-            # principal, comprimento da nacelle do motor)
-            
-        
+        # O comprimento da fuselagem diminuiu em comparação com o F70 original (2,53 m a menos).
+        # Por conta disso, algumas medidas e posicionamentos longitudinais precisam ser modificados
+        # (posição da asa, posição das empenagens, posição do motor, posição do trem de pouso
+        # principal, comprimento da nacelle do motor)
+
         airplane = {
             "type": "transport",  # Can be 'transport', 'fighter', or 'general'
             "S_w": 92,  # Wing area [m2]
@@ -3498,7 +3497,7 @@ def standard_airplane(name="fokker100"):
             "AR_v": 1.314,  # VT aspect ratio
             "taper_v": 0.754,  # VT taper ratio
             "sweep_v": 35.57 * np.pi / 180,  # VT sweep [rad]
-            "zr_v": 3.24/2,  # Vertical position of the VT [m]
+            "zr_v": 3.24 / 2,  # Vertical position of the VT [m]
             "tcr_v": 0.1,  # t/c of the root section of the VT
             "tct_v": 0.1,  # t/c of the tip section of the VT
             "L_f": 29.27,  # Fuselage length [m] <- Otimizado de acordo com a planilha PrestoCabin (ln 372)
@@ -3513,9 +3512,9 @@ def standard_airplane(name="fokker100"):
             "engine": {
                 "model": "Howe turbofan",  # Check engineTSFC function for options
                 "BPR": 4.9,  # Engine bypass ratio
-                "Cbase": 0.39/ 3600,
-                "weight": 1120*gravity
-            }, # Motor CF34-C5
+                "Cbase": 0.39 / 3600,
+                "weight": 1120 * gravity,
+            },  # Motor CF34-C5
             "x_nlg": 3.64,  # Longitudinal position of the nose landing gear [m]
             "x_mlg": 17.10,  # Longitudinal position of the main landing gear [m]
             "y_mlg": 2.52,  # Lateral position of the main landing gear [m]
@@ -3539,8 +3538,9 @@ def standard_airplane(name="fokker100"):
             "altitude_takeoff": 0.0,  # Altitude for takeoff computation [m]
             "distance_takeoff": 1600,  # Required takeoff distance [m]
             "altitude_landing": 0.0,  # Altitude for landing computation [m]
-            "distance_landing": 1600, # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
-            "MLW_frac": 34400/37527,  # Max Landing Weight / Max Takeoff Weight NAO SEI
+            "distance_landing": 1600,  # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
+            "MLW_frac": 34400
+            / 37527,  # Max Landing Weight / Max Takeoff Weight NAO SEI
             "altitude_cruise": 11800,  # Cruise altitude [m]
             "Mach_cruise": 0.76,  # Cruise Mach number
             "range_cruise": 4100 * 10**3,  # Cruise range [m]
@@ -3548,11 +3548,11 @@ def standard_airplane(name="fokker100"):
             "altitude_altcruise": 4572,  # Alternative cruise altitude [m]
             "Mach_altcruise": 0.4,  # Alternative cruise Mach number
             "range_altcruise": 200 * nm2m,  # Alternative cruise range [m]
-            "W_payload": (76*97.0688 + 460)*gravity,  # Payload weight [N]
+            "W_payload": (76 * 97.0688 + 460) * gravity,  # Payload weight [N]
             "xcg_payload": 12.76,  # Longitudinal position of the Payload center of gravity [m]
             "W_crew": 408.233 * gravity,  # Crew weight [N]
             "xcg_crew": 2.5,  # Longitudinal position of the Crew center of gravity [m]
             "rho_f": 804,  # Fuel density kg/m3 (This is Jet A-1)
-            #"W0_guess": 36740 * gravity,  # Guess for MTOW
+            # "W0_guess": 36740 * gravity,  # Guess for MTOW
         }
     return airplane

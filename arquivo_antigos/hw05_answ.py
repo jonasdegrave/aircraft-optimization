@@ -91,9 +91,15 @@ plt.ylabel("W0")
 plt.plot(SW, W0_vec)
 
 min_index = np.where(W0_vec == min(W0_vec))
-plt.scatter(SW[min_index], W0_vec[min_index], c='r', label = "W0 mínimo")
+plt.scatter(SW[min_index], W0_vec[min_index], c="r", label="W0 mínimo")
 plt.legend()
-print("W0 mínimo é: ", min(W0_vec), "[N] para uma área de asa de: ", SW[min_index][0], " [m^2]")
+print(
+    "W0 mínimo é: ",
+    min(W0_vec),
+    "[N] para uma área de asa de: ",
+    SW[min_index][0],
+    " [m^2]",
+)
 # Q4 e Q5 foram feitas utilizando as tabelas
 
 ############################ Q6
