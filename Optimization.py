@@ -280,11 +280,14 @@ F = res.F
 n_evals = np.array([e.evaluator.n_eval for e in res.history])
 opt = np.array([e.opt[0].F for e in res.history])
 
-plt.title("Convergence")
-plt.plot(n_evals, -opt, "--")
-plt.xlabel("Function calls")
-plt.ylabel("Range [m]")
-
+plt.figure(0)
+plt.title("Convergência", fontsize=20)
+plt.plot(range(len(n_evals)), -opt, "--", linewidth=2.5, color = 'blue')
+plt.xlabel('Geração', fontsize=20)
+plt.ylabel('Alcance [m]', fontsize=20)
+plt.xticks(fontsize=15)
+plt.yticks(fontsize=15)
+plt.grid(which='both', axis = 'both', color = '0.8', alpha = 0.5, linewidth=1.5 )
 
 ##### Inicializando os limites superiores e inferiores das variáveis para rea-
 #####lizar posterior retorno dos valores normalizados para o domínio original.
@@ -323,6 +326,7 @@ Lbv_Upper = 0.42 * 1.1
 
 ######### Observando os valores das variáveis no critério de parada, no domínio
 #########original dos valores.
+
 Sweep = (Denormalize(X[0][0], Sweep_Lower, Sweep_Upper)) * (180 / np.pi)
 MachCruise = Denormalize(X[0][1], MachCruise_Lower, MachCruise_Upper)
 AR_w = Denormalize(X[0][2], AR_Lower, AR_Upper)
@@ -335,9 +339,20 @@ Lch = Denormalize(X[0][8], Lch_Lower, Lch_Upper)
 Cvt = Denormalize(X[0][9], Cvt_Lower, Cvt_Upper)
 Lbv = Denormalize(X[0][10], Lbv_Lower, Lbv_Upper)
 T0 = 130000 + res.G[0][12] * 130000
+# Sweep = (Denormalize(X[0], Sweep_Lower, Sweep_Upper)) * (180 / np.pi)
+# MachCruise = Denormalize(X[1], MachCruise_Lower, MachCruise_Upper)
+# AR_w = Denormalize(X[2], AR_Lower, AR_Upper)
+# S_w = Denormalize(X[3], SW_Lower, SW_Upper)
+# Range = Denormalize(X[4], Range_Lower, Range_Upper)
+# AltCruise = Denormalize(X[5], AltCruise_Lower, AltCruise_Upper)
+# xr_w = Denormalize(X[6], xr_w_Lower, xr_w_Upper)
+# Cht = Denormalize(X[7], Cht_Lower, Cht_Upper)
+# Lch = Denormalize(X[8], Lch_Lower, Lch_Upper)
+# Cvt = Denormalize(X[9], Cvt_Lower, Cvt_Upper)
+# Lbv = Denormalize(X[10], Lbv_Lower, Lbv_Upper)
+# T0 = 130000 + res.G[12] * 130000
 
-
-##### Chamdando o dicionário novamente para faze o plot da aeronave com valo-
+##### Chamando o dicionário novamente para faze o plot da aeronave com valo-
 #####res atualizados.
 airplane = dt.standard_airplane("F70_XerifeEdition")
 
@@ -362,10 +377,52 @@ airplane = dt.analyze(
     plot=True,  # Generate 3D plot of the aircraft
 )
 
+##### Tempo de execução do algoritmo de otimização.
 Execution_Time = res.exec_time
 
-# History_G = np.array(callback.G)
-# for i in range(len(callback.G)):
+Restrictions = ["Restrição: MTOW < 39000 [ATIVA]", "$\Delta S_{w,lan} > 0$ [INATIVA]", "$SM_{fwd} < 0.3$ [ATIVA]", "$SM_{aft} > 0.05$ [ATIVA]", "$frac_{nlg,fwd} < 0.18$ (INATIVA)",
+                "$frac_{nlg,aft} > 0.05$ (INATIVA)", "$alpha_{tipback} > 15$ (INATIVA)", "$alpha_{tailstrike} > 10$ (INATIVA)", "$\phi_{overturn} < 63$ (INATIVA)", "$b_{tank,bw} < 0.95$ (INATIVA)",
+                "$b_w < 36$ (INATIVA)", "$Cl_v < 0.75$ (INATIVA)", "T0 < 130000 [ATIVA]", "$(xr_v + cr_v) < (L_f + 0.5)$ (INATIVA)","$|xr_h - xt_v < 0.1|$ (INATIVA)", "$|cr_h - ct_v <= 0.5|$ (ATIVA)"]
+
+History_X = np.array(callback.X)
+History_G = np.array(callback.G)
+
+for i in range(len(callback.G[0])):
+    plt.figure(i+1)
+    plt.axhline(y = 0, color = 'r', linestyle = 'dashed', alpha=0.5, linewidth=2) 
+    plt.plot(range(len(History_G)),History_G[:,i], linewidth=2.5) 
+    plt.legend(['Limite', 'Evolução da Restrição'], fontsize=15)
+    plt.xlabel('Geração', fontsize=20)
+    plt.ylabel('Restrição Adimensional', fontsize=20)
+    plt.title(Restrictions[i], fontsize=20)
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.grid(which='both', axis = 'both', color = '0.8', alpha = 0.5, linewidth=1.5)
     
-# fig = plt.figure()
-# plt.plot(re)
+    if i == 0:
+        plt.ylim([-0.01, 0.01])
+
+    elif i == 2 or i == 13:
+        plt.ylim([-0.1, 0.1])
+
+    elif i == 3 or i == 9 or i == 12 or i == 15:
+        plt.ylim([-0.2, 0.2])
+
+    elif i == 13:
+        plt.ylim([-0.05, 0.05])
+
+Variables = ["Enflechamento $(Sweep_w)$", "Mach em cruzeiro $(Mach_{cruise})$", "Alongamento (AR)",
+             "Área da asa$(S_w)$", "Alcance em cruzeiro $(Range_{cruise})$", "Altitude de cruzeiro $(Altitude_{cruise})$", 
+             "Posição da raiz da asa $(xr_w)$", "Coeficiente de volume da E.H. (Cht)","Alavanca adimensional da E.H. $(Lc_h)$",
+             "Coeficiente de volume da E.V. (Cvt)","Alavanca adimensional da E.V. $(Lb_v)$"]
+
+for i in range(len(callback.X[0])):
+    plt.figure(i+17)
+    plt.plot(range(len(History_X)),History_X[:,i], linewidth=2.5) 
+    plt.ylim([0, 1])
+    plt.xlabel('Geração', fontsize=20)
+    plt.ylabel('Variável adimensional', fontsize=20)
+    plt.title(Variables[i], fontsize=20)
+    plt.xticks(fontsize=15)
+    plt.yticks(fontsize=15)
+    plt.grid(which='both', axis = 'both', color = '0.8', alpha = 0.5, linewidth=1.5)
