@@ -257,14 +257,14 @@ algorithm = NSGA2(
 #  Avaliação do critério de parada a cada: 100 gerações.
 
 termination = DefaultSingleObjectiveTermination(
-    xtol=1e-5, ftol=50, period=100, n_max_gen=2000, n_max_evals=100000
+    xtol=1e-5, ftol=50, period=100, n_max_gen=4000, n_max_evals=1000000
 )
 
 ########-------------------- ATIVANDO O OTIMIZADOR ---------------------#######
 ####### Compilando o otimizador com a definição do problema, algoritmo e
 #######critério de parada.
 
-res = minimize(problem, algorithm, termination, seed=3, callback = callback, save_history=True, verbose=True)
+res = minimize(problem, algorithm, termination, seed=5, callback = callback, save_history=True, verbose=True)
 
 ###############################################################################
 ########################### AVALIANDO OS RESULTADOS ###########################
@@ -323,18 +323,18 @@ Lbv_Upper = 0.42 * 1.1
 
 ######### Observando os valores das variáveis no critério de parada, no domínio
 #########original dos valores.
-Sweep = (Denormalize(X[0], Sweep_Lower, Sweep_Upper)) * (180 / np.pi)
-MachCruise = Denormalize(X[1], MachCruise_Lower, MachCruise_Upper)
-AR_w = Denormalize(X[2], AR_Lower, AR_Upper)
-S_w = Denormalize(X[3], SW_Lower, SW_Upper)
-Range = Denormalize(X[4], Range_Lower, Range_Upper)
-AltCruise = Denormalize(X[5], AltCruise_Lower, AltCruise_Upper)
-xr_w = Denormalize(X[6], xr_w_Lower, xr_w_Upper)
-Cht = Denormalize(X[7], Cht_Lower, Cht_Upper)
-Lch = Denormalize(X[8], Lch_Lower, Lch_Upper)
-Cvt = Denormalize(X[9], Cvt_Lower, Cvt_Upper)
-Lbv = Denormalize(X[10], Lbv_Lower, Lbv_Upper)
-T0 = 130000 + res.G[12] * 130000
+Sweep = (Denormalize(X[0][0], Sweep_Lower, Sweep_Upper)) * (180 / np.pi)
+MachCruise = Denormalize(X[0][1], MachCruise_Lower, MachCruise_Upper)
+AR_w = Denormalize(X[0][2], AR_Lower, AR_Upper)
+S_w = Denormalize(X[0][3], SW_Lower, SW_Upper)
+Range = Denormalize(X[0][4], Range_Lower, Range_Upper)
+AltCruise = Denormalize(X[0][5], AltCruise_Lower, AltCruise_Upper)
+xr_w = Denormalize(X[0][6], xr_w_Lower, xr_w_Upper)
+Cht = Denormalize(X[0][7], Cht_Lower, Cht_Upper)
+Lch = Denormalize(X[0][8], Lch_Lower, Lch_Upper)
+Cvt = Denormalize(X[0][9], Cvt_Lower, Cvt_Upper)
+Lbv = Denormalize(X[0][10], Lbv_Lower, Lbv_Upper)
+T0 = 130000 + res.G[0][12] * 130000
 
 
 ##### Chamdando o dicionário novamente para faze o plot da aeronave com valo-
