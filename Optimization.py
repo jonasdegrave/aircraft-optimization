@@ -250,7 +250,7 @@ algorithm = NSGA2(
 )
 
 ########---------------- DEFININDO O CRITÉRIO DE PARADA ----------------#######
-#  Parada por geração: 2000. 
+#  Parada por geração: 4000. 
 #  Parada por alteração nas variáveis: 0.00001.
 #  Parada por alteração no objetivo: 50.
 #  Parada por população máxima: 100000.
@@ -362,7 +362,10 @@ airplane = dt.analyze(
     plot=True,  # Generate 3D plot of the aircraft
 )
 
-# Execution_Time = res.exec_time()
+Execution_Time = res.exec_time
 
+# History_G = np.array(callback.G)
+# for i in range(len(callback.G)):
+    
 # fig = plt.figure()
 # plt.plot(re)

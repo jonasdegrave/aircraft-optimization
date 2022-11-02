@@ -17,21 +17,6 @@ R_air = 287
 
 airplane = dt.standard_airplane("F70_XerifeEdition_Optimized")
 
-airplane["sweep_w"] = 18.81282932617969 *(np.pi/180)
-airplane["Mach_cruise"] = 0.7502125074428585
-airplane["AR_w"] = 7.467089692520907
-airplane["S_w"] = 91.29784610895916
-airplane["range_cruise"] = 4871068.883647906
-airplane["altitude_cruise"] = 12073.615637943889
-airplane["xr_w"] = 12.59957729339388
-
-airplane["x_mlg"] = 12.59957729339388 + 4.28
-
-airplane["Cht"] = 0.78870372248287
-airplane["Lc_h"] = 3.727775473999575
-airplane["Cvt"] = 0.05514317941289336
-airplane["Lb_v"] = 0.4508784918373203
-
 # dt.geometry(airplane)
 # Modify one parameter (if necessary)
 # "W_payload": 76 * 91 * gravity
