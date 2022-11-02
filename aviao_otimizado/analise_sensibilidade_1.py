@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#%% -*- coding: utf-8 -*-
 """
 Created on Wed Oct 26 18:30:02 2022
 
@@ -65,26 +65,26 @@ n_var = 11
 
 Sweep_Lower = (16.5 * np.pi / 180) * 0.4
 Sweep_Upper = 35 * np.pi / 180
-MachCruise_Lower = 0.75
-MachCruise_Upper = 0.80
+MachCruise_Lower = 0.7
+MachCruise_Upper = 0.8
 AR_Lower = 6
 AR_Upper = 11
 SW_Lower = 60
 SW_Upper = 130
-Range_Lower = 4500000
-Range_Upper = 5500000
-AltCruise_Lower = 10000
-AltCruise_Upper = 12000
+Range_Lower = 3000000
+Range_Upper = 7000000
+AltCruise_Lower = 8000
+AltCruise_Upper = 13000
 xr_w_Lower = 10
 xr_w_Upper = 15
-Cht_Lower = 0.75
-Cht_Upper = 1.1
-Lch_Lower = 3.7 * 0.9
-Lch_Upper = 3.7 * 1.1
-Cvt_Lower = 0.04
-Cvt_Upper = 0.12
-Lbv_Lower = 0.42 * 0.9
-Lbv_Upper = 0.42 * 1.1
+Cht_Lower = 0.5
+Cht_Upper = 1.5
+Lch_Lower = 2
+Lch_Upper = 5
+Cvt_Lower = 0.02
+Cvt_Upper = 0.2
+Lbv_Lower = 0.2
+Lbv_Upper = 0.8
 
 lb = [Range_Lower, AR_Lower, SW_Lower, Sweep_Lower, MachCruise_Lower, AltCruise_Lower, xr_w_Lower,
       Cht_Lower, Lch_Lower, Cvt_Lower, Lbv_Lower]
@@ -92,7 +92,7 @@ ub = [Range_Upper, AR_Upper, SW_Upper, Sweep_Upper, MachCruise_Upper, AltCruise_
       Cht_Upper, Lch_Upper, Cvt_Upper, Lbv_Upper]
 
 # Desired number of samples
-n_samples = 100
+n_samples = 1000
 
 # Sampling type
 # sampler = FloatRandomSampling()
@@ -177,7 +177,8 @@ plt.show()
 
 # Create a pandas dataframe with all the information
 df_op = pd.DataFrame(
-    {   "alt_cruise": X[:, 5],
+    {   "Range": X[:,0],
+        "alt_cruise": X[:, 5],
         "mach": X[:, 4],
         "Wf_W0": y1_samples,
         "We_W0": y2_samples,
@@ -208,3 +209,40 @@ elif plot_type == 1:
 # Plot window
 plt.tight_layout()
 plt.show()
+
+# Create a pandas dataframe with all the information
+df_e = pd.DataFrame(
+    {   "Cht": X[:, 7],
+        "Lc_h": X[:, 8],
+        "Cvt": X[:, 9],
+        "Lb_v": X[:,10],
+        "Wf_W0": y1_samples,
+        "We_W0": y2_samples,
+        "T0 / W0": y3_samples,
+        "W0 / Sw": y4_samples,
+        "SM_fwd": y5_samples,
+        "SM_aft": y6_samples,
+    }
+)
+
+# Plot the correlation matrix
+sns.set(style="white", font_scale=0.8)
+
+if plot_type == 0:
+
+    # Simple plot
+    fig = sns.pairplot(df_e, corner=True)
+
+elif plot_type == 1:
+
+    # Complete plot
+    # based on: https://stackoverflow.com/questions/48139899/correlation-matrix-plot-with-coefficients-on-one-side-scatterplots-on-another
+    fig = sns.PairGrid(df_e, diag_sharey=False)
+    fig.map_lower(sns.regplot, lowess=True, line_kws={"color": "black"})
+    fig.map_diag(sns.histplot)
+    fig.map_upper(corrdot)
+
+# Plot window
+plt.tight_layout()
+plt.show()
+# %%
