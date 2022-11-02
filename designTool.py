@@ -144,22 +144,6 @@ def geometry(airplane):
     xm_w = xr_w + ym_w * np.tan(sweep_w) + (cr_w - cm_w) / 4
     zm_w = zr_w + ym_w * np.tan(dihedral_w)
 
-    # HORIZONTAL TAIL
-
-    L_h = Lc_h * cm_w
-    S_h = (S_w * cm_w / L_h) * Cht
-    b_h = np.sqrt(AR_h * S_h)
-    cr_h = (2 * S_h) / (b_h * (1 + taper_h))
-    ct_h = taper_h * cr_h
-    cm_h = (2 * cr_h / 3) * (1 + taper_h + taper_h**2) / (1 + taper_h)
-    xm_h = xm_w + L_h + (cm_w - cm_h) / 4
-    ym_h = (b_h / 6) * (1 + 2 * taper_h) / (1 + taper_h)
-    zm_h = zr_h + ym_h * np.tan(dihedral_h)
-    xr_h = xm_h - ym_h * np.tan(sweep_h) + (cm_h - cr_h) / 4
-    yt_h = b_h / 2
-    xt_h = xr_h + yt_h * np.tan(sweep_h) + (cr_h - ct_h) / 4
-    zt_h = zr_h + yt_h * np.tan(dihedral_h)
-
     # VERTICAL TAIL
 
     L_v = Lb_v * b_w
@@ -173,8 +157,27 @@ def geometry(airplane):
     xr_v = xm_v - (zm_v - zr_v) * np.tan(sweep_v) + (cm_v - cr_v) / 4
     zt_v = zr_v + b_v
     xt_v = xr_v + (zt_v - zr_v) * np.tan(sweep_v) + (cr_v - ct_v) / 4
+    
+    # HORIZONTAL TAIL
+
+    zr_h = zt_v - 0.1
+    L_h = Lc_h * cm_w
+    S_h = (S_w * cm_w / L_h) * Cht
+    b_h = np.sqrt(AR_h * S_h)
+    cr_h = (2 * S_h) / (b_h * (1 + taper_h))
+    ct_h = taper_h * cr_h
+    cm_h = (2 * cr_h / 3) * (1 + taper_h + taper_h**2) / (1 + taper_h)
+    xm_h = xm_w + L_h + (cm_w - cm_h) / 4
+    ym_h = (b_h / 6) * (1 + 2 * taper_h) / (1 + taper_h)
+    zm_h = zr_h + ym_h * np.tan(dihedral_h)
+    xr_h = xm_h - ym_h * np.tan(sweep_h) + (cm_h - cr_h) / 4
+    yt_h = b_h / 2
+    xt_h = xr_h + yt_h * np.tan(sweep_h) + (cr_h - ct_h) / 4
+    zt_h = zr_h + yt_h * np.tan(dihedral_h)
+    
 
     # Update dictionary with new results
+    airplane["zr_h"] = zr_h
     airplane["b_w"] = b_w
     airplane["cr_w"] = cr_w
     airplane["xt_w"] = xt_w
@@ -3471,88 +3474,88 @@ def standard_airplane(name="fokker100"):
         # (posição da asa, posição das empenagens, posição do motor, posição do trem de pouso
         # principal, comprimento da nacelle do motor)
 
-        airplane = {
-            "type": "transport",  # Can be 'transport', 'fighter', or 'general'
-            "S_w": 90.98082453361354,  # Wing area [m2]
-            "AR_w": 8.341826790683632,  # Wing aspect ratio
-            "taper_w": 0.28,  # Wing taper ratio
-            "sweep_w": 18.621587491997442 * np.pi / 180,  # Wing sweep [rad]
-            "dihedral_w": 3.3 * np.pi / 180,  # Wing dihedral [rad]
-            "xr_w": 12.565590245059521,  # Longitudinal position of the wing (with respect to the fuselage nose) [m]
-            "zr_w": -1.01,  # Vertical position of the wing (with respect to the fuselage nose) [m]
-            "tcr_w": 0.140,  # t/c of the root section of the wing
-            "tct_w": 0.075,  # t/c of the tip section of the wing
-            "Cht": 0.7500064730327484,  # Horizontal tail volume coefficient
-            "Lc_h": 3.972626910377093,  # Non-dimensional lever of the horizontal tail (lever/wing_mac)
-            "AR_h": 4.75,  # HT aspect ratio
-            "taper_h": 0.36,  # HT taper ratio
-            "sweep_h": 29.14 * np.pi / 180,  # HT sweep [rad]
-            "dihedral_h": 4.2 * np.pi / 180,  # HT dihedral [rad]
-            "zr_h": 5.2,  # Vertical position of the HT [m]
-            "tcr_h": 0.1,  # t/c of the root section of the HT
-            "tct_h": 0.1,  # t/c of the tip section of the HT
-            "eta_h": 1.0,  # Dynamic pressure factor of the HT
-            "Cvt": 0.044819424977459194, # Vertical tail volume coefficient
-            "Lb_v": 0.43324985683964373,  # Non-dimensional lever of the vertical tail (lever/wing_span)
-            "AR_v": 1.314,  # VT aspect ratio
-            "taper_v": 0.754,  # VT taper ratio
-            "sweep_v": 35.57 * np.pi / 180,  # VT sweep [rad]
-            "zr_v": 3.24 / 2,  # Vertical position of the VT [m]
-            "tcr_v": 0.1,  # t/c of the root section of the VT
-            "tct_v": 0.1,  # t/c of the tip section of the VT
-            "L_f": 29.27,  # Fuselage length [m] <- Otimizado de acordo com a planilha PrestoCabin (ln 372)
-            "D_f": 3.24,  # Fuselage diameter [m] <- Otimizado de acordo com a planilha PrestoCabin (ln 136)
-            "x_n": 22.5,  # Longitudinal position of the nacelle frontal face [m]
-            "y_n": 2.80,  # Lateral position of the nacelle centerline [m]
-            "z_n": 0.85,  # Vertical position of the nacelle centerline [m]
-            "L_n": 3.27,  # Nacelle length [m]
-            "D_n": 1.64,  # Nacelle diameter [m]
-            "n_engines": 2,  # Number of engines
-            "n_engines_under_wing": 0,  # Number of engines installed under the wing
-            "engine": {
-                "model": "Howe turbofan",  # Check engineTSFC function for options
-                "BPR": 4.9,  # Engine bypass ratio
-                "Cbase": 0.39 / 3600,
-                "weight": 1120 * gravity,
-            },  # Motor CF34-C5
-            "x_nlg": 3.64,  # Longitudinal position of the nose landing gear [m]
-            "x_mlg": 16.845590245059523,  # Longitudinal position of the main landing gear [m]
-            "y_mlg": 2.52,  # Lateral position of the main landing gear [m]
-            "z_lg": -2.45,  # Vertical position of the landing gear [m]
-            "x_tailstrike": 22,  # Longitudinal position of critical tailstrike point [m]
-            "z_tailstrike": -0.64,  # Vertical position of critical tailstrike point [m]
-            "c_tank_c_w": 0.4,  # Fraction of the wing chord occupied by the fuel tank
-            "x_tank_c_w": 0.2,  # Fraction of the wing chord where fuel tank starts
-            "clmax_w": 1.8,  # Maximum lift coefficient of wing airfoil
-            "flap_type": "double slotted",  # Flap type
-            "c_flap_c_wing": 0.30,  # Fraction of the wing chord occupied by flaps
-            "b_flap_b_wing": 0.60,  # Fraction of the wing span occupied by flaps (including fuselage portion)
-            "slat_type": None,  # Slat type
-            "c_slat_c_wing": 0.00,  # Fraction of the wing chord occupied by slats
-            "b_slat_b_wing": 0.00,  # Fraction of the wing span occupied by slats
-            "c_ail_c_wing": 0.27,  # Fraction of the wing chord occupied by aileron
-            "b_ail_b_wing": 0.34,  # Fraction of the wing span occupied by aileron
-            "h_ground": 35.0
-            * ft2m,  # Distance to the ground for ground effect computation [m]
-            "k_exc_drag": 0.03,  # Excrescence drag factor
-            "altitude_takeoff": 0.0,  # Altitude for takeoff computation [m]
-            "distance_takeoff": 1600,  # Required takeoff distance [m]
-            "altitude_landing": 0.0,  # Altitude for landing computation [m]
-            "distance_landing": 1600,  # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
-            "MLW_frac": 34400
-            / 37527,  # Max Landing Weight / Max Takeoff Weight NAO SEI
-            "altitude_cruise": 12341.016673282771,  # Cruise altitude [m]
-            "Mach_cruise": 0.7500525021972817,  # Cruise Mach number
-            "range_cruise": 5154614.649600215,  # Cruise range [m]
-            "loiter_time": 45 * 60,  # Loiter time [s]
-            "altitude_altcruise": 4572,  # Alternative cruise altitude [m]
-            "Mach_altcruise": 0.4,  # Alternative cruise Mach number
-            "range_altcruise": 200 * nm2m,  # Alternative cruise range [m]
-            "W_payload": (76 * 97.0688 + 460) * gravity,  # Payload weight [N]
-            "xcg_payload": 12.76,  # Longitudinal position of the Payload center of gravity [m]
-            "W_crew": 408.233 * gravity,  # Crew weight [N]
-            "xcg_crew": 2.5,  # Longitudinal position of the Crew center of gravity [m]
-            "rho_f": 804,  # Fuel density kg/m3 (This is Jet A-1)
-            # "W0_guess": 36740 * gravity,  # Guess for MTOW
-        }
+      airplane = {
+          "type": "transport",  # Can be 'transport', 'fighter', or 'general'
+          "S_w": 92,  # Wing area [m2]
+          "AR_w": 8.0,  # Wing aspect ratio
+          "taper_w": 0.28,  # Wing taper ratio
+          "sweep_w": 16.5 * np.pi / 180,  # Wing sweep [rad]
+          "dihedral_w": 3.3 * np.pi / 180,  # Wing dihedral [rad]
+          "xr_w": 12.82,  # Longitudinal position of the wing (with respect to the fuselage nose) [m]
+          "zr_w": -1.01,  # Vertical position of the wing (with respect to the fuselage nose) [m]
+          "tcr_w": 0.140,  # t/c of the root section of the wing
+          "tct_w": 0.075,  # t/c of the tip section of the wing
+          "Cht": 0.78,  # Horizontal tail volume coefficient
+          "Lc_h": 3.7,  # Non-dimensional lever of the horizontal tail (lever/wing_mac)
+          "AR_h": 4.75,  # HT aspect ratio
+          "taper_h": 0.36,  # HT taper ratio
+          "sweep_h": 29.14 * np.pi / 180,  # HT sweep [rad]
+          "dihedral_h": 4.2 * np.pi / 180,  # HT dihedral [rad]
+          "zr_h": 5.2,  # Vertical position of the HT [m]
+          "tcr_h": 0.1,  # t/c of the root section of the HT
+          "tct_h": 0.1,  # t/c of the tip section of the HT
+          "eta_h": 1.0,  # Dynamic pressure factor of the HT
+          "Cvt": 0.05,  # Vertical tail volume coefficient
+          "Lb_v": 0.42,  # Non-dimensional lever of the vertical tail (lever/wing_span)
+          "AR_v": 1.314,  # VT aspect ratio
+          "taper_v": 0.754,  # VT taper ratio
+          "sweep_v": 35.57 * np.pi / 180,  # VT sweep [rad]
+          "zr_v": 3.24 / 2,  # Vertical position of the VT [m]
+          "tcr_v": 0.1,  # t/c of the root section of the VT
+          "tct_v": 0.1,  # t/c of the tip section of the VT
+          "L_f": 29.27,  # Fuselage length [m] <- Otimizado de acordo com a planilha PrestoCabin (ln 372)
+          "D_f": 3.24,  # Fuselage diameter [m] <- Otimizado de acordo com a planilha PrestoCabin (ln 136)
+          "x_n": 22.5,  # Longitudinal position of the nacelle frontal face [m]
+          "y_n": 2.80,  # Lateral position of the nacelle centerline [m]
+          "z_n": 0.85,  # Vertical position of the nacelle centerline [m]
+          "L_n": 3.27,  # Nacelle length [m]
+          "D_n": 1.64,  # Nacelle diameter [m]
+          "n_engines": 2,  # Number of engines
+          "n_engines_under_wing": 0,  # Number of engines installed under the wing
+          "engine": {
+              "model": "Howe turbofan",  # Check engineTSFC function for options
+              "BPR": 4.9,  # Engine bypass ratio
+              "Cbase": 0.39 / 3600,
+              "weight": 1120 * gravity,
+          },  # Motor CF34-C5
+          "x_nlg": 3.64,  # Longitudinal position of the nose landing gear [m]
+          "x_mlg": 17.10,  # Longitudinal position of the main landing gear [m]
+          "y_mlg": 2.52,  # Lateral position of the main landing gear [m]
+          "z_lg": -2.45,  # Vertical position of the landing gear [m]
+          "x_tailstrike": 22,  # Longitudinal position of critical tailstrike point [m]
+          "z_tailstrike": -0.64,  # Vertical position of critical tailstrike point [m]
+          "c_tank_c_w": 0.4,  # Fraction of the wing chord occupied by the fuel tank
+          "x_tank_c_w": 0.2,  # Fraction of the wing chord where fuel tank starts
+          "clmax_w": 1.8,  # Maximum lift coefficient of wing airfoil
+          "flap_type": "double slotted",  # Flap type
+          "c_flap_c_wing": 0.30,  # Fraction of the wing chord occupied by flaps
+          "b_flap_b_wing": 0.60,  # Fraction of the wing span occupied by flaps (including fuselage portion)
+          "slat_type": None,  # Slat type
+          "c_slat_c_wing": 0.00,  # Fraction of the wing chord occupied by slats
+          "b_slat_b_wing": 0.00,  # Fraction of the wing span occupied by slats
+          "c_ail_c_wing": 0.27,  # Fraction of the wing chord occupied by aileron
+          "b_ail_b_wing": 0.34,  # Fraction of the wing span occupied by aileron
+          "h_ground": 35.0
+          * ft2m,  # Distance to the ground for ground effect computation [m]
+          "k_exc_drag": 0.03,  # Excrescence drag factor
+          "altitude_takeoff": 0.0,  # Altitude for takeoff computation [m]
+          "distance_takeoff": 1600,  # Required takeoff distance [m]
+          "altitude_landing": 0.0,  # Altitude for landing computation [m]
+          "distance_landing": 1600,  # Required landing distance [m] (The actual Fokker100 distance is 1350 m but it is very restrictive compared to the historical regression. Therefore I kept the same TO distance since the aircraft should takeoff and land at the same runway)
+          "MLW_frac": 34400
+          / 37527,  # Max Landing Weight / Max Takeoff Weight NAO SEI
+          "altitude_cruise": 11800,  # Cruise altitude [m]
+          "Mach_cruise": 0.76,  # Cruise Mach number
+          "range_cruise": 4700 * 10**3,  # Cruise range [m]
+          "loiter_time": 45 * 60,  # Loiter time [s]
+          "altitude_altcruise": 4572,  # Alternative cruise altitude [m]
+          "Mach_altcruise": 0.4,  # Alternative cruise Mach number
+          "range_altcruise": 200 * nm2m,  # Alternative cruise range [m]
+          "W_payload": 76 * 91 * gravity,  # Payload weight [N]
+          "xcg_payload": 12.26,  # Longitudinal position of the Payload center of gravity [m]
+          "W_crew": 4 * 91 * gravity,  # Crew weight [N]
+          "xcg_crew": 2.5,  # Longitudinal position of the Crew center of gravity [m]
+          "rho_f": 804,  # Fuel density kg/m3 (This is Jet A-1)
+          # "W0_guess": 36740 * gravity,  # Guess for MTOW
+      }
     return airplane
