@@ -339,18 +339,6 @@ Lch = Denormalize(X[0][8], Lch_Lower, Lch_Upper)
 Cvt = Denormalize(X[0][9], Cvt_Lower, Cvt_Upper)
 Lbv = Denormalize(X[0][10], Lbv_Lower, Lbv_Upper)
 T0 = 130000 + res.G[0][12] * 130000
-# Sweep = (Denormalize(X[0], Sweep_Lower, Sweep_Upper)) * (180 / np.pi)
-# MachCruise = Denormalize(X[1], MachCruise_Lower, MachCruise_Upper)
-# AR_w = Denormalize(X[2], AR_Lower, AR_Upper)
-# S_w = Denormalize(X[3], SW_Lower, SW_Upper)
-# Range = Denormalize(X[4], Range_Lower, Range_Upper)
-# AltCruise = Denormalize(X[5], AltCruise_Lower, AltCruise_Upper)
-# xr_w = Denormalize(X[6], xr_w_Lower, xr_w_Upper)
-# Cht = Denormalize(X[7], Cht_Lower, Cht_Upper)
-# Lch = Denormalize(X[8], Lch_Lower, Lch_Upper)
-# Cvt = Denormalize(X[9], Cvt_Lower, Cvt_Upper)
-# Lbv = Denormalize(X[10], Lbv_Lower, Lbv_Upper)
-# T0 = 130000 + res.G[12] * 130000
 
 ##### Chamando o dicionário novamente para faze o plot da aeronave com valo-
 #####res atualizados.
@@ -387,6 +375,7 @@ Restrictions = ["Restrição: MTOW < 39000 [ATIVA]", "$\Delta S_{w,lan} > 0$ [IN
 History_X = np.array(callback.X)
 History_G = np.array(callback.G)
 
+##### Plotando a evolução das restrições
 for i in range(len(callback.G[0])):
     plt.figure(i+1)
     plt.axhline(y = 0, color = 'r', linestyle = 'dashed', alpha=0.5, linewidth=2) 
@@ -416,6 +405,7 @@ Variables = ["Enflechamento $(Sweep_w)$", "Mach em cruzeiro $(Mach_{cruise})$", 
              "Posição da raiz da asa $(xr_w)$", "Coeficiente de volume da E.H. (Cht)","Alavanca adimensional da E.H. $(Lc_h)$",
              "Coeficiente de volume da E.V. (Cvt)","Alavanca adimensional da E.V. $(Lb_v)$"]
 
+##### Plotando a evolução das variáveis de projeto
 for i in range(len(callback.X[0])):
     plt.figure(i+17)
     plt.plot(range(len(History_X)),History_X[:,i], linewidth=2.5) 
